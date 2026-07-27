@@ -1,9 +1,9 @@
-from {{ service_name }}.app.api.router import api_router
+from services.{{ service_name }}.app.api.router import api_router
 
 from shared_lib.core.factory import create_app
 
 
 app = create_app(
-        service_name=" {{service_title}}",
+        service_name="{{service_title}}",
         router=api_router,
         )
