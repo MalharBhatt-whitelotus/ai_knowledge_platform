@@ -5,6 +5,8 @@ from fastapi.routing import APIRouter
 
 from shared_lib.config.settings import settings
 from shared_lib.logger.logger import get_logger
+from shared_lib.exceptions.exceptions import AppException
+from shared_lib.app.exception_handler import app_exception_handler
 
 def create_app(service_name: str, router: APIRouter) -> FastAPI:
     """
@@ -25,6 +27,8 @@ def create_app(service_name: str, router: APIRouter) -> FastAPI:
         lifespan=lifespan
         )
 
+    app.add_exception_handler(AppException, app_exception_handler,)
+    
     app.include_router(router)
 
     return app
