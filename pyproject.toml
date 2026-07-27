@@ -14,25 +14,16 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "python-multipart",
-
     "redis",
-
     "celery",
-
     "aio-pika",
-
     "pymupdf",
-    
     "chromadb",
-
     "openai",
-
     "tenacity",
-    
     "structlog",
-
     "pytest",
     "pytest-asyncio",
-
-    "alembic"
+    "alembic",
+    "jinja2>=3.1.6",
 ]

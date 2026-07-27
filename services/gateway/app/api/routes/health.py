@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from datetime import datetime, timezone
 
 from shared_lib.config.settings import settings
 from shared_lib.schemas.health import HealthResponse
@@ -11,4 +12,5 @@ async def health():
         service="Gateway Service",
         status="healthy",
         version=settings.APP_VERSION,
+        timestamp=datetime.now(timezone.utc)
     )
