@@ -40,7 +40,7 @@ services:
   gateway_service:
     build:
       context: .
-      dockerfile: services/gateway_service/Dockerfile
+      dockerfile: services/gateway/Dockerfile
     
     container_name: gateway_service
 
@@ -57,5 +57,127 @@ services:
     
     volumes:
      - .:/app
+  
+  ai_service:
+    build:
+      context: . 
+      dockerfile: services/ai/Dockerfile
+    
+    container_name: ai_service
+
+    ports:
+      - "8005:8005"
+    
+    env_file:
+      - .env
+    
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    
+    volumes:
+      - .:/app
+  auth_service:
+    build:
+      context: . 
+      dockerfile: services/auth/Dockerfile
+    
+    container_name: auth_service
+
+    ports:
+      - "8001:8001"
+    
+    env_file:
+      - .env
+    
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    
+    volumes:
+      - .:/app
+  embedding_service:
+    build:
+      context: . 
+      dockerfile: services/embedding/Dockerfile
+    
+    container_name: embedding_service
+
+    ports:
+      - "8003:8003"
+    
+    env_file:
+      - .env
+    
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    
+    volumes:
+      - .:/app
+  file_service:
+    build:
+      context: . 
+      dockerfile: services/file/Dockerfile
+    
+    container_name: file_service
+
+    ports:
+      - "8002:8002"
+    
+    env_file:
+      - .env
+    
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    
+    volumes:
+      - .:/app
+  search_service:
+    build:
+      context: . 
+      dockerfile: services/search/Dockerfile
+    
+    container_name: search_service
+
+    ports:
+      - "8004:8004"
+    
+    env_file:
+      - .env
+    
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    
+    volumes:
+      - .:/app
+  worker_service:
+    build:
+      context: . 
+      dockerfile: services/worker/Dockerfile
+    
+    container_name: worker_service
+
+    ports:
+      - "8006:8006"
+    
+    env_file:
+      - .env
+    
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    
+    volumes:
+      - .:/app
+  
 volumes:
   postgre_data:
