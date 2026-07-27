@@ -1,0 +1,38 @@
+[project]
+name = "ai-knowledge-platform"
+version = "0.1.0"
+description = "AI Knowledge Search Platform"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "httpx",
+    "sqlalchemy",
+    "asyncpg",
+    "pydantic",
+    "pydantic-settings",
+    "python-dotenv",
+    "python-multipart",
+
+    "redis",
+
+    "celery",
+
+    "aio-pika",
+
+    "pymupdf",
+    
+    "chromadb",
+
+    "openai",
+
+    "tenacity",
+    
+    "structlog",
+
+    "pytest",
+    "pytest-asyncio",
+
+    "alembic"
+]
