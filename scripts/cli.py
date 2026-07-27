@@ -7,13 +7,13 @@ from scripts.generator import (
 )
 
 PORTS = {
-    "gateway_service": 8000,
-    "auth_service": 8001,
-    "file_service": 8002,
-    "embedding_service": 8003,
-    "search_service": 8004,
-    "ai_service": 8005,
-    "worker_service": 8006,
+    "gateway": 8000,
+    "auth": 8001,
+    "file": 8002,
+    "embedding": 8003,
+    "search": 8004,
+    "ai": 8005,
+    "worker": 8006,
 }
 
 

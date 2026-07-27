@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from services.worker.app.api.routes.health import router as health_router
+from services.embedding.app.api.routes.health import router as health_router
 
 api_router = APIRouter()
 

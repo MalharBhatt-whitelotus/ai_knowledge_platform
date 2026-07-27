@@ -7,8 +7,8 @@ COPY pyproject.toml .
 RUN pip install uv
 RUN uv pip install --system .
 
-COPY  . .
+COPY . .
 
-EXPOSE 8006
+EXPOSE 8003
 
-CMD ["uvicorn", "services.worker.app.main:app", "--host", "0.0.0.0", "--port", "8006"]
+CMD ["uvicorn", "services.embedding.app.main:app", "--host", "0.0.0.0", "--port", "8003"]

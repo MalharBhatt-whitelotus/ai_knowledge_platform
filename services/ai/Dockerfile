@@ -2,12 +2,13 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY . .
+COPY pyproject.toml .
 
 RUN pip install uv
-
 RUN uv pip install --system .
 
-EXPOSE 9000
+COPY . .
 
-CMD ["uvicorn", "ai.app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+EXPOSE 8005
+
+CMD ["uvicorn", "services.ai.app.main:app", "--host", "0.0.0.0", "--port", "8005"]
