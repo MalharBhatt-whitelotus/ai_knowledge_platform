@@ -3,8 +3,6 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 class Settings(BaseSettings):
 
     APP_NAME: str = "AI Knowledge Platform"
@@ -21,11 +19,11 @@ class Settings(BaseSettings):
     RABBITMQ_HOST: str
     RABBITMQ_PORT: int
     RABBITMQ_DEFAULT_USER: str
-    RABBITMQ_DEFAULR_PASSWORD: str
+    RABBITMQ_DEFAULT_PASSWORD: str
 
     OPEN_AI_KEY: str
 
-    model_config = SettingsConfigDict(env_file= BASE_DIR/".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=  ".env", extra="ignore")
 
 @lru_cache
 def get_settings() -> Settings:

@@ -1,7 +1,7 @@
 import sys
 import logging
 
-def get_logger(service_name: str) ->logging.logger:
+def get_logger(service_name: str) ->logging.Logger:
     """
     Create and configure a logger for a service.
     """
