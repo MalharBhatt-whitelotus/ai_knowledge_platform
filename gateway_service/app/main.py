@@ -1,8 +1,7 @@
-from fastapi import FastAPI
-
-from shared_lib.config.settings import settings
+from shared_lib.app.factory import create_app
 from gateway_service.app.api.router import api_router
 
-app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION)
-
-app.include_router(api_router)
+app = create_app(
+    service_name="Gateway Service", 
+    router=api_router
+    )
