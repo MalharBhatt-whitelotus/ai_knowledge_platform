@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, requests, Depends
+from fastapi import APIRouter, requests,status, Depends
 
 from shared_lib.config.settings import settings
 from shared_lib.schemas.health import HealthResponse
@@ -19,7 +19,7 @@ async def health():
     return HealthResponse(service=auth_settings.SERVICE_NAME, status="ok", version=settings.APP_VERSION, timestamp=datetime.now(timezone.utc))
 
 
-@router.post("/register_user",response_model=RegisterResponse)
+@router.post("/register_user",response_model=RegisterResponse, status_code=status.HTTP_201_CREATED,)
 async def register_user(user_credentials: RegisterRequest, db: AsyncSession = Depends(get_db)):
     result = await service.register_user(user_credentials, db)
     return result
