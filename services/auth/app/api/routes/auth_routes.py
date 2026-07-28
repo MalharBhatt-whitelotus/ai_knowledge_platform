@@ -8,18 +8,24 @@ from shared_lib.schemas.health import HealthResponse
 from services.auth.app.database.auth_database import get_db
 from services.auth.app.services.auth_service import AuthService as service
 from services.auth.app.config.settings import settings as auth_settings
-from services.auth.app.schemas.auth_schemas import AuthRequest, AuthResponse
+from services.auth.app.schemas.auth_schemas import RegisterRequest,RegisterResponse, AuthRequest, AuthResponse
 
 
-register_router = APIRouter()
+router = APIRouter()
 
 
-@register_router.get("/healthy_register")
+@router.get("/health")
 async def health():
     return HealthResponse(service=auth_settings.SERVICE_NAME, status="ok", version=settings.APP_VERSION, timestamp=datetime.now(timezone.utc))
 
 
-@register_router.post("/register_user",response_model=AuthResponse)
-async def register_user(user_credentials: AuthRequest, db: AsyncSession = Depends(get_db)):
-    result = service.register_user(user_credentials, db)
+@router.post("/register_user",response_model=RegisterResponse)
+async def register_user(user_credentials: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    result = await service.register_user(user_credentials, db)
+    return result
+
+
+@router.post("/login_user", response_model=AuthResponse)
+async def login_user(user_credentials: AuthRequest, db: AsyncSession = Depends(get_db)):
+    result = await service.login_user(user_credentials, db)
     return result
