@@ -1,0 +1,19 @@
+from sqlalchemy import Column, String, Integer, Boolean, DateTime
+
+from services.auth.app.database.auth_database import Base
+
+class UserAuthenticationDetail(Base):
+    __tablename__ = "user_auth"
+
+    id = Column(Integer, primary_key=True, index=True)
+    uuid = Column(String, unique=True, nullable=False, index=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    username = Column(String, nullable=False, unique=True, index=True)
+    password_hash = Column(String, nullable=False, unique=True, index=True)
+    role = Column(String, default="user")
+    is_active = Column(Boolean, default=False)
+    is_verified = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
