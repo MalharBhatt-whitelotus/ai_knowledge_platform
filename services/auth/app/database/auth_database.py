@@ -10,7 +10,7 @@ sessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expi
 
 Base = declarative_base()
 
-async def get_database():
+async def get_db():
     db = sessionLocal()
     try:
         yield await db
