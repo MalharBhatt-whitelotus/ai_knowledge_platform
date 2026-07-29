@@ -30,12 +30,12 @@ class AuthService:
             if user_credentials.role != "user":
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized.")
 
-            user_uuid = str(utils.get_uuid())
+            user_id = str(utils.get_uuid())
             hashed_password = utils.hash_password(user_credentials.password)
             created_at = datetime.now(timezone.utc)
             updated_at = datetime.now(timezone.utc)
 
-            registered_user = await repo.register_user(user_credentials, user_uuid, hashed_password, created_at, updated_at, db)
+            registered_user = await repo.register_user(user_credentials, user_id, hashed_password, created_at, updated_at, db)
             if not registered_user:
                 raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="User not registered.")
 
