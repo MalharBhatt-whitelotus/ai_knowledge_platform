@@ -38,7 +38,7 @@ class AuthRepository:
     """    
     async def register_user(
             user_credentials: RegisterRequest,
-            uuid: str, 
+            user_id: str, 
             hashed_password: str,
             created_at: datetime,
             updated_at: datetime,
@@ -46,7 +46,7 @@ class AuthRepository:
             ) -> RegisterResponse:
         
         user = UserAuthenticationDetail(
-            uuid = uuid,
+            user_id = user_id,
             first_name = user_credentials.first_name,
             last_name = user_credentials.last_name,
             email = user_credentials.email,
@@ -115,5 +115,4 @@ class AuthRepository:
     ---------------------------------------
     """
     async def rollback(db: AsyncSession):
-        await db.execute(select(UserAuthenticationDetail))
         await db.rollback()
