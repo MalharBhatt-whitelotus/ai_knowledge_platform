@@ -13,7 +13,7 @@ class RegisterRequest(BaseModel):
     
 class RegisterResponse(BaseModel):
     id: int
-    uuid: str
+    user_id: str
     first_name: str
     last_name: str
     email: EmailStr
@@ -31,6 +31,12 @@ class AuthRequest(BaseModel):
     password: str = Field(..., min_length=6, max_length=15)
 
 
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "Bearer"
+
+
 class AuthResponse(BaseModel):
     username: str
     token: TokenResponse
@@ -38,7 +44,6 @@ class AuthResponse(BaseModel):
     is_verify: bool
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "Bearer"
+
+class CurrentUserResponse(BaseModel):
+    ...
