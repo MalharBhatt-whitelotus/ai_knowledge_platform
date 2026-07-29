@@ -1,18 +1,35 @@
-from datetime import UTC, datetime, timedelta
 from typing import Any
-
 from jose import JWTError, jwt
+from datetime import UTC, datetime, timedelta
 
-from app.config.settings import settings
-
+from services.auth.app.config.settings import settings
 class JWTManager:
     """Utility class for creating and verifying JWT tokens."""
 
     @staticmethod
+    def generate_tokens(user) -> tuple[str, str]:
+
+        access_token = JWTManager.create_access_token(
+            data={
+                "sub": user.username,
+                "email": user.email,
+                "role": user.role
+                }
+        )
+
+        refresh_token = JWTManager.create_refresh_token(
+            data={
+                "sub": user.username
+            }
+        )
+
+        return access_token, refresh_token
+    
+    @staticmethod
     def create_access_token(data: dict[str, Any]) -> str:
         payload = data.copy()
 
-        now = datetime.copy()
+        now = datetime.now(UTC)
 
         payload.update(
             {
