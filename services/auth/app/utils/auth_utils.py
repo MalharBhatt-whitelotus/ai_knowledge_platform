@@ -23,7 +23,7 @@ class AuthUtils:
 
 
     @staticmethod
-    def verify(password: str, hashed_password: str) -> bool:
+    def verify_password(password: str, hashed_password: str) -> bool:
        return AuthUtils.pwd_handler.verify(password, hashed_password)
 
     @staticmethod
