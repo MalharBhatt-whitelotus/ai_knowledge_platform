@@ -1,22 +1,41 @@
-from sqlalchemy import select
 from datetime import datetime
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.auth.app.models.auth_models import UserAuthenticationDetail
 from services.auth.app.schemas.auth_schemas import RegisterRequest, RegisterResponse
 
+
 class AuthRepository:
 
+
+    """
+    ---------------------------------------
+            * Search Username Function *
+    ---------------------------------------
+    """
     async def search_username(username: str, db: AsyncSession) -> RegisterResponse:
         result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.username == username))
         user = result.scalar_one_or_none()
-        return True if user else False
+        return user
 
+
+    """
+    ---------------------------------------
+            * Search Email Function *
+    ---------------------------------------
+    """
     async def search_email(email: str, db: AsyncSession) -> RegisterResponse:
         result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.email == email))
         user = result.scalar_one_or_none()
         return True if user else False
-    
+
+
+    """
+    ---------------------------------------
+            * Register User Function *
+    ---------------------------------------
+    """    
     async def register_user(
             user_credentials: RegisterRequest,
             uuid: str, 
@@ -41,18 +60,60 @@ class AuthRepository:
         )
 
         await db.execute(select(UserAuthenticationDetail))
-        await db.add(user)
+        db.add(user)
         await db.commit()
         await db.refresh(user)
 
         return user
 
-    async def get_password(username, db):
-        ...
 
-    async def user_is_active(username, db):
-        ...
+    """
+    ---------------------------------------
+      * Update User Activation Function *
+    ---------------------------------------
+    """
+    async def update_user_active(username: str, db: AsyncSession) -> bool:
+        result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.username == username))
+        user = result.scalar_one_or_none()
+        user.is_active = True
 
+        await db.commit()
+        await db.refresh(user)
+
+        return user.is_active
+
+
+    """
+    ---------------------------------------
+     * Update User Verification Function *
+    ---------------------------------------
+    """
+    async def update_user_verify(username: str, db: AsyncSession) -> bool:
+        result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.username == username))
+        user = result.scalar_one_or_none()
+        user.is_verified = True
+
+        await db.commit()
+        await db.refresh(user)
+
+        return user.is_verified
+
+
+    async def updated_at(username: str, time: datetime, db: AsyncSession) -> datetime:
+        result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.username == username))
+        user = result.scalar_one_or_none()
+        user.updated_at = time
+
+        await db.commit()
+        await db.refresh(user)
+
+        return time
+
+    """
+    ---------------------------------------
+            * Rollback Function *
+    ---------------------------------------
+    """
     async def rollback(db: AsyncSession):
         await db.execute(select(UserAuthenticationDetail))
         await db.rollback()
