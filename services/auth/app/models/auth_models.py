@@ -6,7 +6,7 @@ class UserAuthenticationDetail(Base):
     __tablename__ = "user_auth"
 
     id = Column(Integer, primary_key=True, index=True)
-    uuid = Column(String, unique=True, nullable=False, index=True)
+    user_id = Column(String, unique=True, nullable=False, index=True)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
