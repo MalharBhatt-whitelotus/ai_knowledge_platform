@@ -10,7 +10,7 @@ dependencies = [
     "httpx",
     "sqlalchemy",
     "asyncpg",
-    "pydantic",
+    "pydantic[email]",
     "pydantic-settings",
     "python-dotenv",
     "python-multipart",
@@ -32,4 +32,5 @@ dependencies = [
     "python-jose>=3.5.0",
     "passlib>=1.7.4",
     "bcrypt==4.0.0",
+    "greenlet>=3.5.4",
 ]
