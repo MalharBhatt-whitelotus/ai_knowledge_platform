@@ -34,6 +34,9 @@ class AuthRequest(BaseModel):
 class AuthResponse(BaseModel):
     username: str
     token: TokenResponse
+    is_active: bool
+    is_verify: bool
+
 
 class TokenResponse(BaseModel):
     access_token: str
