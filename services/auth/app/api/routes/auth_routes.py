@@ -6,8 +6,8 @@ from shared_lib.config.settings import settings
 from shared_lib.schemas.health import HealthResponse
 
 from services.auth.app.database.auth_database import get_db
-from services.auth.app.services.auth_service import AuthService as service
 from services.auth.app.config.settings import settings as auth_settings
+from services.auth.app.services.auth_service import AuthService as service
 from services.auth.app.schemas.auth_schemas import RegisterRequest,RegisterResponse, AuthRequest, AuthResponse
 
 
@@ -29,3 +29,7 @@ async def register_user(user_credentials: RegisterRequest, db: AsyncSession = De
 async def login_user(user_credentials: AuthRequest, db: AsyncSession = Depends(get_db)):
     result = await service.login_user(user_credentials, db)
     return result
+
+@router.get("/me", response_model=RegisterResponse)
+async def current_user():
+    ...
