@@ -12,7 +12,7 @@ class JWTManager:
     def create_access_token(data: dict[str, Any]) -> str:
         payload = data.copy()
 
-        now = datetime.copy()
+        now = datetime.now(UTC)
 
         payload.update(
             {
