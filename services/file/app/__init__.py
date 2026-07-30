@@ -9,15 +9,19 @@ Validate file
 Store metadata
 Save file
 Publish processing event
+
 Feature 3.2 – List Documents
 GET /documents
 
 Pagination, filtering, search.
 
+
 Feature 3.3 – Get Document
 GET /documents/{id}
+
 Feature 3.4 – Download Document
 GET /documents/{id}/download
+
 Feature 3.5 – Delete Document
 
 Deletes:
@@ -25,6 +29,7 @@ Deletes:
 Metadata
 File
 Vectors (later)
+
 Feature 3.6 – Processing Status
 {
     "status": "PROCESSING"
@@ -39,6 +44,7 @@ PROCESSING
 EMBEDDED
 
 FAILED
+
 Database Design
 
 We'll start with this model.
@@ -137,6 +143,7 @@ services/
     ├── tests/
     ├── Dockerfile
     └── .env
+    
 Why a storage/ Package?
 
 Don't save files directly inside the service layer.
