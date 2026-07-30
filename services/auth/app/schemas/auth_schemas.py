@@ -1,14 +1,21 @@
+from enum import Enum
 from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
+
+from services.auth.app.enums import Role, DocType
 
 
 class RegisterRequest(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
-    email: EmailStr = Field(..., min_length=5, max_length=100)
+    email: EmailStr
     username: str = Field(..., min_length=3, max_length=100)
     password: str = Field(..., min_length=6, max_length=15)
-    role: str = Field(default="user")
+    # role: str
+    role: Role = Role.user
+    #new column
+    doc_id: str = Field(...)
+    doc_type: DocType
     
     
 class RegisterResponse(BaseModel):
@@ -19,11 +26,15 @@ class RegisterResponse(BaseModel):
     email: EmailStr
     username: str
     password_hash: str
-    role: str
+    # role: str
+    role: Role
     is_active: bool
     is_verified: bool
     created_at: datetime
     updated_at: datetime
+    #new column
+    doc_id: str
+    doc_type: DocType
 
 
 class AuthRequest(BaseModel):
@@ -44,6 +55,12 @@ class AuthResponse(BaseModel):
     is_verify: bool
 
 
-
 class CurrentUserResponse(BaseModel):
-    ...
+    model_config = ConfigDict(from_attributes=True)
+
+    user_id: str
+    username: str
+    email: str
+    role: str
+    is_active: bool
+    is_verify: bool
