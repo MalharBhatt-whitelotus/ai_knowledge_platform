@@ -10,7 +10,7 @@ from services.auth.app.database.auth_database import get_db
 from services.auth.app.config.settings import settings as auth_settings
 from services.auth.app.services.auth_service import AuthService as service
 from services.auth.app.dependencies.current_user import get_current_user
-from services.auth.app.schemas.auth_schemas import RegisterRequest,RegisterResponse, AuthRequest, AuthResponse, CurrentUserResponse, TokenResponse
+from services.auth.app.schemas.auth_schemas import RegisterRequest,RegisterResponse, AuthRequest, AuthResponse, CurrentUserResponse, UserLogoutResponse
 
 
 router = APIRouter()
@@ -32,9 +32,9 @@ async def login_user(user_credentials: AuthRequest, db: AsyncSession = Depends(g
     result = await service.login_user(user_credentials, db)
     return result
 
-@router.post("/logout_user", response_model=AuthResponse, status_code=200)
-async def logout_user(user_credentials: AuthRequest, db: AsyncSession = Depends(get_db)):
-    result = await service.logout_user(user_credentials, db)
+@router.post("/logout_user", response_model=UserLogoutResponse, status_code=200)
+async def logout_user(current_user = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    result = await service.logout_user(current_user, db)
     return result
     
 @router.post("/me", response_model=CurrentUserResponse, status_code=200)

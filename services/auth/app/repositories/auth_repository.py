@@ -75,10 +75,10 @@ class AuthRepository:
       * Update User Activation Function *
     ---------------------------------------
     """
-    async def update_user_active(username: str, db: AsyncSession) -> bool:
+    async def update_user_active(username: str, is_active: bool, db: AsyncSession) -> bool:
         result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.username == username))
         user = result.scalar_one_or_none()
-        user.is_active = True
+        user.is_active = is_active
 
         await db.commit()
         await db.refresh(user)
@@ -91,10 +91,10 @@ class AuthRepository:
      * Update User Verification Function *
     ---------------------------------------
     """
-    async def update_user_verify(username: str, db: AsyncSession) -> bool:
+    async def update_user_verify(username: str, is_verified: bool, db: AsyncSession) -> bool:
         result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.username == username))
         user = result.scalar_one_or_none()
-        user.is_verified = True
+        user.is_verified = is_verified
 
         await db.commit()
         await db.refresh(user)
@@ -102,6 +102,11 @@ class AuthRepository:
         return user.is_verified
 
 
+    """
+    ---------------------------------------
+     * Update Time Function *
+    ---------------------------------------
+    """
     async def updated_at(username: str, time: datetime, db: AsyncSession) -> datetime:
         result = await db.execute(select(UserAuthenticationDetail).where(UserAuthenticationDetail.username == username))
         user = result.scalar_one_or_none()
@@ -111,6 +116,7 @@ class AuthRepository:
         await db.refresh(user)
 
         return time
+
 
     """
     ---------------------------------------
