@@ -55,6 +55,11 @@ class AuthResponse(BaseModel):
     is_verify: bool
 
 
+class UserLogoutResponse(BaseModel):
+    username: str
+    is_active: bool
+    updated_at: datetime
+
 class CurrentUserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
