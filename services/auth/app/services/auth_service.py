@@ -27,9 +27,6 @@ class AuthService:
             if not utils.check_password(user_credentials.password):
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid User Credentials")
 
-            if user_credentials.role != "user":
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized.")
-
             user_id = str(utils.get_uuid())
             hashed_password = utils.hash_password(user_credentials.password)
             created_at = datetime.now(timezone.utc)
@@ -97,3 +94,11 @@ class AuthService:
         except Exception as exc:
             await repo.rollback(db)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+
+    """
+    ---------------------------------------
+            * Login User Function *
+    ---------------------------------------
+    """
+    async def logout_user(user_credentials: AuthRequest, db: AsyncSession) -> AuthResponse:
+        ...
