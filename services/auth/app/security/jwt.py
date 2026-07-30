@@ -89,7 +89,7 @@ class JWTManager:
         payload = JWTManager.decode_token(token)
 
         if payload.get("type") != "access":
-            raise JWTError("Invalid token type.")
+            raise JWTError("Invalid token")
 
         return payload
 
@@ -99,6 +99,6 @@ class JWTManager:
         payload = JWTManager.decode_token(token)
 
         if payload.get("type") != "refresh":
-            raise JWTError("Invalid token type.")
+            raise JWTError("Invalid token")
 
         return payload
