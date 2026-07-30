@@ -101,4 +101,4 @@ class AuthService:
     ---------------------------------------
     """
     async def logout_user(user_credentials: AuthRequest, db: AsyncSession) -> AuthResponse:
-        
+        ...
