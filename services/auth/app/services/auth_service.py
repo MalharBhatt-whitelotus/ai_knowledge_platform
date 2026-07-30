@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from services.auth.app.security.jwt import JWTManager
 from services.auth.app.utils.auth_utils import AuthUtils as utils
 from services.auth.app.repositories.auth_repository import AuthRepository as repo
-from services.auth.app.schemas.auth_schemas import RegisterRequest, RegisterResponse, AuthRequest, AuthResponse, TokenResponse
+from services.auth.app.schemas.auth_schemas import RegisterRequest, RegisterResponse, AuthRequest, AuthResponse, TokenResponse, CurrentUserResponse, UserLogoutResponse
 
 
 class AuthService:
@@ -66,8 +66,8 @@ class AuthService:
             if not access_token or not refresh_token:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to generated the authentication token")
 
-            is_active = await repo.update_user_active(user.username, db)
-            is_verify = await repo.update_user_verify(user.username, db)
+            is_active = await repo.update_user_active(user.username, True, db)
+            is_verify = await repo.update_user_verify(user.username, True, db)
             if not is_active or not is_verify:
                 raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Failed to login user.")
             now = datetime.now(timezone.utc)
@@ -95,10 +95,33 @@ class AuthService:
             await repo.rollback(db)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
 
+
     """
     ---------------------------------------
-            * Login User Function *
+            * LogOut User Function *
     ---------------------------------------
     """
-    async def logout_user(user_credentials: AuthRequest, db: AsyncSession) -> AuthResponse:
-        ...
+    async def logout_user(current_user: CurrentUserResponse, db: AsyncSession) -> UserLogoutResponse:
+        try:
+            if not current_user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not loggeg in.")
+
+            username = current_user.username
+            is_active = await repo.update_user_active(username, False, db)
+            if is_active:
+                raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Internal server error")
+
+            now = datetime.now(timezone.utc)
+            time = await repo.updated_at(username, now, db)
+            if not time:
+                raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Internal Server erro.")
+
+            return UserLogoutResponse(username=username,is_active=is_active,updated_at=time)
+        
+        except HTTPException:
+            await repo.rollback(db)
+            raise
+
+        except Exception as exc:
+            await repo.rollback(db)
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
