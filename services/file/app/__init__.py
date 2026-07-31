@@ -45,7 +45,7 @@ EMBEDDED
 
 FAILED
 
-Database Design
+ * Database Design *
 
 We'll start with this model.
 
@@ -186,6 +186,8 @@ Step	Task
 
 Each step ends with working code.
 
+
+* Document Model *
 📌 Our First Task
 
 We'll start with Feature 3.1 – Step 1: Document Model.
@@ -210,6 +212,8 @@ Search Service owns vector storage.
 
 That separation will make the platform easier to scale, easier to test, and much easier to extend to new document types in the future.
 
+
+* Doc Schema *
 1. Upload Request Schema
 
 This defines the metadata the client sends along with the PDF.
@@ -324,6 +328,8 @@ What methods should the repository have?
 
 For the upload feature, you don't need CRUD yet. Only implement what the feature requires.
 
+
+* Doc Repository *
 Required for Feature 3.1
 class DocumentRepository:
 
@@ -501,6 +507,7 @@ class DocumentRepository:
 Don't add update, delete, or list yet. We'll implement those when we reach Features 3.2–3.5. This keeps each feature focused and avoids writing code that isn't used yet.
 
 
+* Storage Abstraction *
 Excellent. This is one of the architectural decisions that separates a production-ready application from a beginner project.
 
 Most tutorials do this:
@@ -614,8 +621,8 @@ async def save(
     ...
 
 Returns:
-
 uploads/documents/uuid.pdf
+
 2. Delete
 
 Purpose:
