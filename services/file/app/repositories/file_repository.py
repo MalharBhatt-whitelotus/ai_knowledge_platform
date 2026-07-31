@@ -78,3 +78,25 @@ class FileRepository:
             created_at=file.created_at,
             updated_at=file.updated_at
         )
+
+
+    """
+    --------------------------------------------
+               * Get By File ID Function *
+    --------------------------------------------
+    """
+    async def get_by_stored_filename(stored_filename: str, db: AsyncSession) -> FileResponse:
+        result = await db.execute(select(File).where(
+            File.stored_filename == stored_filename
+            ))
+        file = result.scalar_one_or_none()
+        return  FileResponse(
+            file_id=file.file_id,
+            owner_id=file.owner_id,
+            original_filename=file.original_filename,
+            content_type=file.content_type,
+            file_size=file.file_size,
+            status=file.status,
+            created_at=file.created_at,
+            updated_at=file.updated_at
+        )
