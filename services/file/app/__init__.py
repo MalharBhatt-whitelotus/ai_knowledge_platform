@@ -45,7 +45,7 @@ EMBEDDED
 
 FAILED
 
-Database Design
+ * Database Design *
 
 We'll start with this model.
 
@@ -186,6 +186,8 @@ Step	Task
 
 Each step ends with working code.
 
+
+* Document Model *
 📌 Our First Task
 
 We'll start with Feature 3.1 – Step 1: Document Model.
@@ -210,6 +212,8 @@ Search Service owns vector storage.
 
 That separation will make the platform easier to scale, easier to test, and much easier to extend to new document types in the future.
 
+
+* Doc Schema *
 1. Upload Request Schema
 
 This defines the metadata the client sends along with the PDF.
@@ -324,6 +328,8 @@ What methods should the repository have?
 
 For the upload feature, you don't need CRUD yet. Only implement what the feature requires.
 
+
+* Doc Repository *
 Required for Feature 3.1
 class DocumentRepository:
 
@@ -500,4 +506,307 @@ class DocumentRepository:
 
 Don't add update, delete, or list yet. We'll implement those when we reach Features 3.2–3.5. This keeps each feature focused and avoids writing code that isn't used yet.
 
+
+* Storage Abstraction *
+Excellent. This is one of the architectural decisions that separates a production-ready application from a beginner project.
+
+Most tutorials do this:
+
+with open(file_path, "wb") as f:
+    f.write(file.read())
+
+directly inside the service.
+
+❌ That tightly couples your service to the local filesystem.
+
+Instead, we're going to use the Strategy Pattern through a storage abstraction.
+
+Step 4 – Storage Abstraction
+Goal
+
+The DocumentService should not know where files are stored.
+
+It should only know that it can:
+
+Save a file
+Read a file
+Delete a file
+
+Whether those files live on:
+
+Local disk
+AWS S3
+Azure Blob Storage
+Google Cloud Storage
+MinIO
+
+should be completely hidden.
+
+Architecture
+                Document Service
+                      │
+                      ▼
+              Storage Interface
+                      │
+        ┌─────────────┴─────────────┐
+        ▼                           ▼
+ Local Storage               S3 Storage
+        │                           │
+        ▼                           ▼
+ Local Filesystem             Amazon S3
+
+Notice that DocumentService never changes.
+
+Only the implementation changes.
+
+Folder Structure
+
+I recommend this structure:
+
+app/
+├── storage/
+│   ├── __init__.py
+│   ├── storage_interface.py
+│   ├── local_storage.py
+│   └── exceptions.py
+
+Later you can add:
+
+storage/
+├── s3_storage.py
+├── minio_storage.py
+├── azure_storage.py
+
+without touching the service layer.
+
+What Should the Interface Define?
+
+The interface should define the operations that every storage provider must implement.
+
+For this project:
+
+class StorageProvider:
+
+    async def save(...)
+
+    async def delete(...)
+
+    async def download(...)
+
+    async def exists(...)
+
+These are the core operations.
+
+1. Save
+
+Purpose:
+
+UploadFile
+
+↓
+
+Store File
+
+↓
+
+Return Storage Path
+
+Suggested signature:
+
+async def save(
+    self,
+    file: UploadFile,
+    filename: str,
+) -> str:
+    ...
+
+Returns:
+uploads/documents/uuid.pdf
+
+2. Delete
+
+Purpose:
+
+Delete Document
+
+↓
+
+Delete File
+
+Signature:
+
+async def delete(
+    self,
+    path: str,
+) -> None:
+    ...
+3. Download
+
+Purpose:
+
+Later:
+
+GET /documents/{id}/download
+
+Signature:
+
+async def download(
+    self,
+    path: str,
+) -> bytes:
+    ...
+
+or return a file stream, depending on how you implement downloads.
+
+4. Exists
+
+Purpose:
+
+Useful before deletion or replacement.
+
+async def exists(
+    self,
+    path: str,
+) -> bool:
+    ...
+Why Not Add More Methods?
+
+Avoid adding methods like:
+
+move()
+
+rename()
+
+copy()
+
+compress()
+
+encrypt()
+
+until a feature actually requires them.
+
+Follow YAGNI (You Aren't Gonna Need It).
+
+The Service Flow
+
+Later your upload service will look like this:
+
+Receive Upload
+      │
+      ▼
+Validate File
+      │
+      ▼
+Generate UUID Filename
+      │
+      ▼
+storage.save(...)
+      │
+      ▼
+Repository.create(...)
+      │
+      ▼
+RabbitMQ.publish(...)
+      │
+      ▼
+Return Response
+
+Notice the service never opens a file itself.
+
+Dependency Injection
+
+Instead of creating the storage class inside the service:
+
+❌ Don't do this:
+
+storage = LocalStorage()
+
+Inject it:
+
+class DocumentService:
+
+    def __init__(
+        self,
+        repository: DocumentRepository,
+        storage: StorageProvider,
+    ):
+        self.repository = repository
+        self.storage = storage
+
+That makes testing much easier because you can replace the real storage with a fake or mock implementation.
+
+Should We Make It an Abstract Base Class?
+
+Yes.
+
+Use Python's abc module.
+
+Conceptually:
+
+class StorageProvider(ABC):
+
+    @abstractmethod
+    async def save(...):
+        ...
+
+    @abstractmethod
+    async def delete(...):
+        ...
+
+    @abstractmethod
+    async def download(...):
+        ...
+
+    @abstractmethod
+    async def exists(...):
+        ...
+
+This guarantees that every storage backend implements the required methods.
+
+Future Expansion
+
+Later, adding S3 becomes straightforward:
+
+class S3Storage(StorageProvider):
+    async def save(...):
+        ...
+
+    async def delete(...):
+        ...
+
+    async def download(...):
+        ...
+
+    async def exists(...):
+        ...
+
+No changes are needed in DocumentService.
+
+Where Are We in Epic 3?
+Feature 3.1 – Upload Document
+
+✅ Step 1 - Document Model
+✅ Step 2 - Schemas
+✅ Step 3 - Repository
+🔄 Step 4 - Storage Abstraction
+⬜ Step 5 - Local Storage Implementation
+⬜ Step 6 - Upload Service
+⬜ Step 7 - Upload API
+⬜ Step 8 - RabbitMQ Publisher
+⬜ Step 9 - Tests
+One Improvement I'd Recommend
+
+Instead of naming the interface StorageInterface, I'd call it StorageProvider.
+
+Why?
+
+Because it's not just an interface—it represents a provider capable of storing files. Names like StorageProvider, EmailProvider, and CacheProvider are common in production code and make implementations like LocalStorageProvider or S3StorageProvider read naturally. It also aligns nicely with dependency injection:
+
+def __init__(
+    self,
+    storage: StorageProvider,
+):
+    ...
+
+That reads like a capability rather than an implementation detail, and it scales well as you add more storage backends.
 """
