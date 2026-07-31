@@ -24,7 +24,7 @@ class FileServices:
 
     """
     -------------------------------------
-             * Init Function * 
+           * Upload File Function * 
     -------------------------------------
     """
     async def upload_file(self, upload_file: UploadFile, user_id: str, db: AsyncSession) -> FileUploadResponse:
@@ -63,7 +63,35 @@ class FileServices:
             return file
 
         except HTTPException:
+            await self.repository.rollback(db)
             raise
 
         except Exception as exc:
+            await self.repository.rollback(db)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail= str(exc))
+
+
+    """
+    -------------------------------------
+           * Delete File Function * 
+    -------------------------------------
+    """
+    async def delete_file(self, file_id: str, db: AsyncSession) -> None:
+        try:
+            file = await self.repository.get_by_file_id(file_id, db)
+            if file is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            if not self.storage_provider.exists(file.storage_path):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            await self.storage_provider.delete(file.storage_path)
+            await self.repository.delete(file.file_id, db)
+            
+        except HTTPException:
+            await self.repository.rollback(db)
+            raise
+
+        except Exception as exc:
+            await self.repository.rollback(db)
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
