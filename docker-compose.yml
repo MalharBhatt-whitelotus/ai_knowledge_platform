@@ -130,7 +130,7 @@ services:
       - "8002:8002"
     
     env_file:
-      - .env
+      - services/file/.env
     
     depends_on:
       - postgres
