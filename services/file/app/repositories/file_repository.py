@@ -100,3 +100,26 @@ class FileRepository:
             created_at=file.created_at,
             updated_at=file.updated_at
         )
+
+    
+    """
+    --------------------------------------------
+               * Addition Suedo Function *
+    --------------------------------------------
+    """
+    async def lists_documents():
+        ...
+    async def update_status():
+        ...
+    async def delete():
+        ...
+    async def count():
+        ...
+    async def search():
+        ...
+    async def filter():
+        ...
+    async def get_by_owner():
+        ...
+    async def exists():
+        ...
