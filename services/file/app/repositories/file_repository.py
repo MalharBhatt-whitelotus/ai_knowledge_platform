@@ -4,7 +4,7 @@ from datetime import datetime
 
 from services.file.app.enums import  DocType, DocStatus
 from services.file.app.models.file_models import File
-from services.file.app.schemas.file_schemas import FileRequest, FileResponse
+from services.file.app.schemas.file_schemas import FileRequest, FileResponse, FileUploadResponse
 
 
 class FileRepository:
@@ -27,7 +27,7 @@ class FileRepository:
             updated_at: datetime,
             file_details: FileRequest, 
             db: AsyncSession
-            ) -> FileResponse:
+            ) -> FileUploadResponse:
 
         
         file = File(
@@ -48,15 +48,11 @@ class FileRepository:
         await db.commit()
         await db.refresh(file)
 
-        return FileResponse(
+        return FileUploadResponse(
             file_id=file.file_id,
-            owner_id=file.owner_id,
-            original_filename=file.original_filename,
-            content_type=file.content_type,
-            file_size=file.file_size,
+            filename=file.original_filename,
             status=file.status,
-            created_at=file.created_at,
-            updated_at=file.updated_at
+            message="File Uploaded Successfully."
             )
 
     
