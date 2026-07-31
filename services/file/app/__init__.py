@@ -209,4 +209,104 @@ Embedding Service owns embeddings.
 Search Service owns vector storage.
 
 That separation will make the platform easier to scale, easier to test, and much easier to extend to new document types in the future.
+
+1. Upload Request Schema
+
+This defines the metadata the client sends along with the PDF.
+
+Remember: UploadFile itself should not be inside a Pydantic model. FastAPI handles file uploads separately using File(...) and form fields using Form(...).
+
+So your request schema should only contain the non-file metadata.
+
+For example:
+
+class DocumentUploadRequest(BaseModel):
+    title: str
+    description: str | None = None
+
+Then your route looks like:
+
+@router.post("/upload")
+async def upload_document(
+    title: str = Form(...),
+    description: str | None = Form(None),
+    file: UploadFile = File(...),
+):
+    ...
+
+Or you can map those form fields into a schema inside the route if you prefer.
+
+2. Upload Response Schema
+
+This is what the client receives after a successful upload.
+
+It should not expose internal implementation details such as:
+
+storage path
+server file name
+local filesystem location
+
+Instead, return information that the client actually needs.
+
+For example:
+
+class DocumentUploadResponse(BaseModel):
+    id: UUID
+    filename: str
+    status: DocumentStatus
+    message: str
+
+Example response:
+
+{
+    "id": "7f73d2aa-8f45-4c89-b9d2-c69b79ef27d3",
+    "filename": "python_notes.pdf",
+    "status": "UPLOADED",
+    "message": "Document uploaded successfully."
+}
+3. Document Detail Schema
+
+We'll need this in Feature 3.3 – Get Document.
+
+class DocumentResponse(BaseModel):
+    id: UUID
+    owner_id: UUID
+    original_filename: str
+    content_type: str
+    file_size: int
+    status: DocumentStatus
+    created_at: datetime
+    updated_at: datetime
+
+Notice it doesn't include:
+
+extracted text
+chunks
+embeddings
+storage path
+
+Those belong to other services or are internal details.
+
+4. Document List Schema
+
+For Feature 3.2 – List Documents, we'll probably return a collection.
+
+class DocumentListResponse(BaseModel):
+    documents: list[DocumentResponse]
+    total: int
+    page: int
+    page_size: int
+
+This makes pagination straightforward later.
+
+So what should your schemas define?
+
+For this feature, think in terms of API contracts, not database tables.
+
+Schema	Purpose	Used In
+DocumentUploadRequest	Metadata supplied with the upload	POST /documents/upload
+DocumentUploadResponse	Confirmation after upload	POST /documents/upload
+DocumentResponse	Full document details	GET /documents/{id}
+DocumentListResponse	Paginated document listing	GET /documents
+
 """
