@@ -95,3 +95,30 @@ class FileServices:
         except Exception as exc:
             await self.repository.rollback(db)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+
+
+    """
+    -------------------------------------
+           * Download File Function * 
+    -------------------------------------
+    """
+    async def download_file(self, file_id: str, db: AsyncSession) -> UploadFile:
+        try:
+            file = self.repository.get_by_file_id(file_id, db)
+            if not file:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            if not self.storage_provider.exists(file.storage_path):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            downloaded_file = self.storage_provider.download(file.storage_path)
+            if not downloaded_file:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="File not downloaded.")
+
+            return downloaded_file
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
