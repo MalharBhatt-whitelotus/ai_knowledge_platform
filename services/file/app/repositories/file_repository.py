@@ -6,6 +6,7 @@ from services.file.app.enums import  DocType, DocStatus
 from services.file.app.models.file_models import File
 from services.file.app.schemas.file_schemas import FileRequest, FileResponse
 
+
 class FileRepository:
 
 
@@ -57,3 +58,23 @@ class FileRepository:
             created_at=file.created_at,
             updated_at=file.updated_at
             )
+
+    
+    """
+    --------------------------------------------
+               * Get By File ID Function *
+    --------------------------------------------
+    """
+    async def get_by_file_id(file_id: str, db: AsyncSession) -> FileResponse:
+        result = await db.execute(select(File).where(File.file_id == file_id))
+        file = result.scalar_one_or_none()
+        return  FileResponse(
+            file_id=file.file_id,
+            owner_id=file.owner_id,
+            original_filename=file.original_filename,
+            content_type=file.content_type,
+            file_size=file.file_size,
+            status=file.status,
+            created_at=file.created_at,
+            updated_at=file.updated_at
+        )
