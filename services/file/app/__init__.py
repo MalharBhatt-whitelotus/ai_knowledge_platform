@@ -309,4 +309,195 @@ DocumentUploadResponse	Confirmation after upload	POST /documents/upload
 DocumentResponse	Full document details	GET /documents/{id}
 DocumentListResponse	Paginated document listing	GET /documents
 
+
+For Feature 3.1 (Upload Document)
+
+Your service will eventually do something like:
+
+await storage.save_file(...)
+await repository.create_document(...)
+await publisher.publish_document_uploaded(...)
+
+Notice that the repository only handles the Document table.
+
+What methods should the repository have?
+
+For the upload feature, you don't need CRUD yet. Only implement what the feature requires.
+
+Required for Feature 3.1
+class DocumentRepository:
+
+    async def create(...)
+
+    async def get_by_id(...)
+
+    async def get_by_stored_filename(...)
+1. create()
+
+Purpose:
+
+Insert a new document into the database.
+
+Example:
+
+async def create(
+    self,
+    document: Document,
+    db: AsyncSession,
+) -> Document:
+    ...
+
+This method should:
+
+Add the model
+Commit
+Refresh
+Return the saved document
+
+Nothing else.
+
+2. get_by_id()
+
+Purpose:
+
+Used later for:
+
+GET /documents/{id}
+
+and
+
+DELETE /documents/{id}
+
+Example:
+
+async def get_by_id(
+    self,
+    document_id: UUID,
+    db: AsyncSession,
+) -> Document | None:
+    ...
+3. get_by_stored_filename()
+
+Why?
+
+Because your service will generate a UUID filename.
+
+Imagine:
+
+invoice.pdf
+
+↓
+
+4fda8a34-acde-4d....
+
+Before saving, you can verify uniqueness if needed.
+
+Example:
+
+async def get_by_stored_filename(
+    self,
+    stored_filename: str,
+    db: AsyncSession,
+) -> Document | None:
+    ...
+Future Methods
+
+Don't implement these yet.
+
+We'll add them when the corresponding feature arrives.
+
+list_documents()
+
+update_status()
+
+delete()
+
+count()
+
+search()
+
+filter()
+
+get_by_owner()
+
+exists()
+
+Only build what the current feature needs.
+
+What should the repository NOT do?
+
+❌ Don't do this:
+
+async def upload_pdf(...):
+    save_file(...)
+    extract_text(...)
+    create_embeddings(...)
+    ...
+
+That's the service layer's job.
+
+Repository Example
+class DocumentRepository:
+
+    async def create(...):
+        ...
+
+    async def get_by_id(...):
+        ...
+
+    async def get_by_stored_filename(...):
+        ...
+
+Very small.
+
+Very focused.
+
+The Service Will Orchestrate Everything
+
+Later your service will look like:
+
+Receive Upload
+      │
+      ▼
+Validate PDF
+      │
+      ▼
+Generate UUID Filename
+      │
+      ▼
+Storage.save_file()
+      │
+      ▼
+Repository.create()
+      │
+      ▼
+RabbitMQ.publish()
+      │
+      ▼
+Return Response
+
+Notice that the service coordinates multiple components.
+
+Should you create a BaseRepository?
+
+Since this is a microservices project with multiple services, yes—but not yet.
+
+Later, in packages/common/database/, we can introduce a generic base repository for common operations like create, get_by_id, delete, and exists. Then each service-specific repository can inherit from it and only implement methods unique to that entity.
+
+For now, keep DocumentRepository explicit. It makes the architecture easier to understand while you're building the platform.
+
+My Recommendation
+
+For Feature 3.1, implement exactly these three methods:
+
+class DocumentRepository:
+
+    async def create(...)
+
+    async def get_by_id(...)
+
+    async def get_by_stored_filename(...)
+
+Don't add update, delete, or list yet. We'll implement those when we reach Features 3.2–3.5. This keeps each feature focused and avoids writing code that isn't used yet.
+
 """
