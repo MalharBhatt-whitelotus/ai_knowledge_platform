@@ -44,4 +44,23 @@ class DocumentService:
         )
 
         return document
-"""
+
+        
+    async def delete_document(
+        self,
+        document_id: str,
+    ):
+
+    document = await self.repository.get(document_id)
+
+    if document is None:
+        raise ValueError("Document not found.")
+
+    if not await self.storage.exists(document.storage_path):
+        raise FileNotFoundError()
+
+    await self.storage.delete(document.storage_path)
+
+    await self.repository.delete(document_id)
+        
+        """
