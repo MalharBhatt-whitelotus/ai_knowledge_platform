@@ -56,3 +56,12 @@ class LocalStorage(StorageProvider):
             raise FileNotFoundError(path)
 
         return file_path.read_bytes()
+
+
+    """
+    -------------------------------------
+            * Exists File Function * 
+    -------------------------------------
+    """
+    async def exists(self, path: str) -> bool:
+        return Path(path).exists()
