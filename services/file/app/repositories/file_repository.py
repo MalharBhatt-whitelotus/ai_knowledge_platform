@@ -78,7 +78,7 @@ class FileRepository:
 
     """
     --------------------------------------------
-               * Get By File ID Function *
+               * Get By File Name Function *
     --------------------------------------------
     """
     async def get_by_stored_filename(stored_filename: str, db: AsyncSession) -> FileResponse:
@@ -97,7 +97,28 @@ class FileRepository:
             updated_at=file.updated_at
         )
 
-    
+
+    """
+    --------------------------------------------
+            * Delete File Function *
+    --------------------------------------------
+    """
+    async def delete(file_id: str, db: AsyncSession) -> None:
+        result = await db.execute(select(File).where(File.file_id == file_id))
+        file = result.scalar_one_or_none()
+        await db.delete(file)
+        await db.commit()
+
+
+    """
+    --------------------------------------------
+            * Rollback DB Function *
+    --------------------------------------------
+    """
+    async def rollback(db: AsyncSession):
+        await db.rollback()
+
+       
     """
     --------------------------------------------
                * Addition Suedo Function *
@@ -106,8 +127,6 @@ class FileRepository:
     async def lists_documents():
         ...
     async def update_status():
-        ...
-    async def delete():
         ...
     async def count():
         ...
