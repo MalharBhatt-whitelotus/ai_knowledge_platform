@@ -15,10 +15,24 @@ class LocalStorage(StorageProvider):
             * Save File Function * 
     -------------------------------------
     """
-    async def save(self, file: UploadFile, filename: str):
+    async def save(self, file: UploadFile, filename: str) -> str:
         destination = self.upload_dir/filename
 
         with open(destination, "wb") as buffer:
             buffer.write(await file.read())
 
         return str(destination)
+
+
+    """
+    -------------------------------------
+            * Save File Function * 
+    -------------------------------------
+    """
+    async def delete(self, path: str) -> None:
+        file_path = Path(path)
+
+        if not file_path.exists():
+            raise FileNotFoundError(path)
+
+        file_path.unlink()
