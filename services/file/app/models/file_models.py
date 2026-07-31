@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, Integer, DateTime, Enum, Boolean
 
 from services.file.app.config.settings import settings
 
+
 class DocType(enum.Enum):
     pdf = "pdf"
     txt = "txt"
@@ -10,12 +11,22 @@ class DocType(enum.Enum):
     xlsx = "xlsx"
     pptx = "pptx"
 
+
+class DocStatus(enum.Enum):
+    in_queue = "in_queue"
+    pending = "pending"
+    completed = "completed"
+
+
 class File:
 
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(String, nullable=False, index=True)
     original_filename = Column(String, nullable=False, index=True)
     stored_filename = Column(String, nullable=False, index=True, unique=True)
-    content_type = Column(Enum(DocType), nullable=False, default=DocType.txt)
-    file_size = Column(...)
-    ...
+    content_type = Column(Enum(DocType), default=DocType.txt)
+    file_size = Column(Integer, nullable=False)
+    storage_path = Column(String, nullable=False, unique=True)
+    status = Column(Enum(DocStatus), default=DocStatus.in_queue)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False)
