@@ -8,6 +8,10 @@ from services.worker.app.messaging.rabbitmq import RabbitMQConnection
 from services.worker.app.handlers.file_uploaded_handlers import FileUploadedHandler
 from services.worker.app.consumers.file_uploaded_consumer import FileUploadedConsumer
 
+from services.worker.app.clients.file_client import FileClient
+from services.worker.app.clients.search_client import SearchClient
+from services.worker.app.clients.embedding_client import EmbeddingClient
+
 logger = get_logger(__name__)
 
 async def startup(app: FastAPI):
@@ -23,7 +27,8 @@ async def startup(app: FastAPI):
         queue_name="file-processing",
         routing_key="file.uploaded",
     )
-    handler = FileUploadedHandler()
+    
+    handler = FileUploadedHandler(FileClient, EmbeddingClient, SearchClient)
     consumer = FileUploadedConsumer(rabbitmq,handler)
 
     await queue.consume(consumer.consume)
