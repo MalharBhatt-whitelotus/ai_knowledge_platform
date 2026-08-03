@@ -14,3 +14,4 @@ def get_file_service():
         repository=repo,
         storage_provider=storage
         )
+    return services

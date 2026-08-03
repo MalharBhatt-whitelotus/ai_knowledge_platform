@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, Integer, DateTime, Enum, Boolean
 
-from services.file.app.config.settings import settings
 from services.file.app.enums import DocType, DocStatus
 from services.file.app.database.file_database import Base
 

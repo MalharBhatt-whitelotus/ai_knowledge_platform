@@ -1,17 +1,27 @@
 import httpx
-from fastapi import HTTPException, status
-from services.file.app.schemas.auth_schemas import CurrentUserResponse
+from fastapi import HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from shared_lib.schemas.current_user import CurrentUserResponse
+
+security = HTTPBearer()
 
 class AuthClient:
 
-    def __init__(self):
+    def __init__(self, ):
         self.base_url = "http://auth_service:8001"
 
-    async def get_current_user(self) -> CurrentUserResponse:
+
+    async def __call__(self, authorization: HTTPAuthorizationCredentials = Depends(security),) -> CurrentUserResponse:
         try:
+            token = authorization.credentials
+            headers = {
+                "Authorization": f"Bearer {token}"
+                }
             async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(
-                    f"{self.base_url}/me"
+                response = await client.post(
+                    f"{self.base_url}/me",
+                    headers=headers
                 )
 
             if response.status_code != status.HTTP_200_OK:
@@ -20,6 +30,7 @@ class AuthClient:
                     detail=response.json()["detail"],
                 )
 
+            print(response.json())
             return CurrentUserResponse(**response.json())
 
         except httpx.RequestError:

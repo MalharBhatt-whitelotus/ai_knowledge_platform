@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from services.file.app.enums import Role
+from shared_lib.enums import Role
 
 class CurrentUserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
