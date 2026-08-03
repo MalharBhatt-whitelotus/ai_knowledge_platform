@@ -56,10 +56,7 @@ class AuthRepository:
             is_active = False,
             is_verified = False,
             created_at = created_at,
-            updated_at = updated_at,
-            #new_column
-            doc_id = user_credentials.doc_id,
-            doc_type = user_credentials.doc_type
+            updated_at = updated_at
         )
 
         await db.execute(select(UserAuthenticationDetail))

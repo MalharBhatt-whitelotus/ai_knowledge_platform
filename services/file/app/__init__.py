@@ -809,4 +809,224 @@ def __init__(
     ...
 
 That reads like a capability rather than an implementation detail, and it scales well as you add more storage backends.
+
+
+ * Feature 3.1 — Step 7: Upload API * 
+Responsibility
+
+The API route should not contain business logic.
+
+Its job is simply to:
+
+Receive Request
+      │
+      ▼
+Validate Request
+      │
+      ▼
+Call Service
+      │
+      ▼
+Return Response
+
+That's it.
+
+If you see file saving, UUID generation, or database code in the route, it's a sign that logic belongs elsewhere.
+
+Request Flow
+Client
+   │
+   ▼
+POST /documents/upload
+   │
+   ▼
+FastAPI Route
+   │
+   ▼
+DocumentService.upload_document()
+   │
+   ├── Validate file
+   ├── Generate UUID filename
+   ├── StorageProvider.save()
+   ├── Repository.create()
+   └── Return document
+   │
+   ▼
+Response Schema
+   │
+   ▼
+Client
+
+Notice that RabbitMQ is not part of the route. That comes in Step 8.
+
+Endpoint
+
+I recommend:
+
+POST /documents/upload
+
+Some people use:
+
+POST /upload
+
+or
+
+POST /files
+
+I prefer /documents/upload because it's explicit and easy to understand. Later, if you support uploading images or videos, you can introduce separate resources without ambiguity.
+
+Authentication
+
+This endpoint should be protected.
+
+Authorization: Bearer <access_token>
+
+Only authenticated users can upload documents.
+
+The route should depend on your existing get_current_user() dependency from the Auth Service (or, once the Gateway is in place, whatever user context it provides).
+
+Request Parameters
+
+Your route will likely receive:
+
+UploadFile
+optional metadata (title, description, etc., if you decided to support them)
+authenticated user
+database session
+
+Conceptually:
+
+file: UploadFile
+current_user: User
+db: AsyncSession
+
+The route should gather these dependencies and pass them to the service.
+
+Service Call
+
+The route should make one call:
+
+await document_service.upload_document(...)
+
+The service should return a Document (or a DTO), and the route maps it to your response model.
+
+Response
+
+Return a 201 Created.
+
+Example:
+
+{
+    "id": "7f73d2aa-8f45-4c89-b9d2-c69b79ef27d3",
+    "filename": "python_notes.pdf",
+    "status": "UPLOADED",
+    "message": "Document uploaded successfully."
+}
+Status Code
+
+Don't return 200 OK.
+
+Use:
+
+201 Created
+
+because a new resource has been created.
+
+Error Cases
+
+Your route should allow these exceptions to propagate from the service:
+
+Scenario	Status
+Missing JWT	401
+Invalid JWT	401
+Wrong file type	400
+File too large	413 (or 400 if you choose that approach initially)
+Duplicate document (if applicable)	409
+Unexpected storage/database error	500
+
+The route shouldn't catch these unless it needs to transform them.
+
+API Signature
+
+A production-style route will conceptually look like:
+
+@router.post(
+    "/upload",
+    status_code=status.HTTP_201_CREATED,
+    response_model=DocumentUploadResponse,
+)
+async def upload_document(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    ...
+
+Notice how clean it is.
+
+Route vs Service Responsibilities
+Route
+Read request
+Inject dependencies
+Call service
+Return response
+Service
+Validate business rules
+Generate UUID filename
+Save file
+Create database record
+Publish events (next step)
+Return result
+Repository
+Database only
+Storage Provider
+Filesystem/object storage only
+
+Keeping these boundaries makes the project much easier to maintain.
+
+Where Does RabbitMQ Fit?
+
+Not here.
+
+The route should never know RabbitMQ exists.
+
+The upload service will eventually look like:
+
+Upload Service
+
+↓
+
+Storage.save()
+
+↓
+
+Repository.create()
+
+↓
+
+RabbitMQ.publish()
+
+↓
+
+Return
+
+That means when you later switch from RabbitMQ to another message broker (or add an outbox pattern), the API route won't change at all.
+
+Step 8 Preview — RabbitMQ Publisher
+
+The next step is where your application becomes event-driven.
+
+After a successful upload, the service will publish an event like:
+
+{
+  "event": "document.uploaded",
+  "document_id": "...",
+  "owner_id": "...",
+  "storage_path": "...",
+  "content_type": "application/pdf"
+}
+
+The Processing Service will consume this event and begin text extraction without making the user wait.
+
+This is the key transition from a CRUD application to a scalable microservices architecture.
 """

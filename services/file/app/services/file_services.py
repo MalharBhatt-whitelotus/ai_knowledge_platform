@@ -6,8 +6,10 @@ from fastapi import UploadFile, HTTPException, status
 
 from services.file.app.enums import DocStatus
 from services.file.app.storage.storage_provider import StorageProvider
-from services.file.app.repositories.file_repository import FileRepository
+from services.file.app.repositories.file_repository import FileRepository as repo
 from services.file.app.schemas.file_schemas import FileRequest, FileUploadResponse
+
+
 class FileServices:
 
 
@@ -16,10 +18,10 @@ class FileServices:
              * Init Function * 
     -------------------------------------
     """
-    def __init__(self, repository: FileRepository, storage_provider: StorageProvider, publisher):
+    #  publisher : None | None
+    def __init__(self, repository: repo, storage_provider: StorageProvider):
         self.repository = repository
         self.storage_provider = storage_provider
-        self.publisher = publisher
 
 
     """
@@ -58,7 +60,7 @@ class FileServices:
             if not file:
                 raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="File not saved.")
 
-            await self.publisher.publish_file_uploaded(file.file_id)
+            # await self.publisher.publish_file_uploaded(file.file_id)
 
             return file
 
