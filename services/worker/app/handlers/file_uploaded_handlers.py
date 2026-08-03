@@ -29,9 +29,9 @@ class FileUploadedHandler:
         embedding_client: EmbeddingClient,
         search_client: SearchClient,
     ) -> None:
-        self.file_client = file_client
-        self.embedding_client = embedding_client
-        self.search_client = search_client
+        self.file_client = file_client()
+        self.embedding_client = embedding_client()
+        self.search_client = search_client()
 
     async def handle(
         self,
@@ -57,7 +57,7 @@ class FileUploadedHandler:
 
         logger.info(
             "Fetched metadata for file %s",
-            file.id,
+            event.file_id,
         )
 
         # ----------------------------------
