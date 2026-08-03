@@ -1,4 +1,3 @@
-from enum import Enum
 from datetime import datetime
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
@@ -11,12 +10,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=100)
     password: str = Field(..., min_length=6, max_length=15)
-    # role: str
     role: Role = Role.user
-    #new column
-    doc_id: str = Field(...)
-    doc_type: DocType
-    
     
 class RegisterResponse(BaseModel):
     id: int
@@ -26,15 +20,11 @@ class RegisterResponse(BaseModel):
     email: EmailStr
     username: str
     password_hash: str
-    # role: str
     role: Role
     is_active: bool
     is_verified: bool
     created_at: datetime
     updated_at: datetime
-    #new column
-    doc_id: str
-    doc_type: DocType
 
 
 class AuthRequest(BaseModel):
@@ -66,6 +56,6 @@ class CurrentUserResponse(BaseModel):
     user_id: str
     username: str
     email: str
-    role: str
+    role: Role
     is_active: bool
     is_verify: bool

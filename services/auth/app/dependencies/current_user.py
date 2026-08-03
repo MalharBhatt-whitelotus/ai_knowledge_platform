@@ -1,15 +1,15 @@
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.auth.app.database.auth_database import get_db
 from services.auth.app.security.jwt import JWTManager
-from services.auth.app.repositories.user_repository import UserRepository as repo
+from services.auth.app.database.auth_database import get_db as db
 from services.auth.app.schemas.auth_schemas import  CurrentUserResponse
+from services.auth.app.repositories.user_repository import UserRepository as repo
 
 security = HTTPBearer()
 
-async def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(security), db: AsyncSession = Depends(get_db)) -> CurrentUserResponse:
+async def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(security), db: AsyncSession = Depends(db)) -> CurrentUserResponse:
     try:
         if not authorization:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized Access is not allowed.")

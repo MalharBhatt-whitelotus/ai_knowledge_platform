@@ -6,8 +6,10 @@ from fastapi import UploadFile, HTTPException, status
 
 from services.file.app.enums import DocStatus
 from services.file.app.storage.storage_provider import StorageProvider
-from services.file.app.repositories.file_repository import FileRepository
-from services.file.app.schemas.file_schemas import FileRequest, FileUploadResponse
+from services.file.app.repositories.file_repository import FileRepository as repo
+from services.file.app.schemas.file_schemas import FileUploadResponse
+
+
 class FileServices:
 
 
@@ -16,10 +18,10 @@ class FileServices:
              * Init Function * 
     -------------------------------------
     """
-    def __init__(self, repository: FileRepository, storage_provider: StorageProvider, publisher):
+    #  publisher : None | None
+    def __init__(self, repository: repo, storage_provider: StorageProvider):
         self.repository = repository
         self.storage_provider = storage_provider
-        self.publisher = publisher
 
 
     """
@@ -34,17 +36,18 @@ class FileServices:
             file_id = uuid.uuid4()
             stored_filename = f"{file_id}{extension}"
 
-            file_path = self.storage_provider.save(file, stored_filename)
+            file_path = await self.storage_provider.save(upload_file, stored_filename)
             if not file_path:
                 raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="File not saved.")
 
-            file_size = file.size
+            file_size = upload_file.size
             if not file_size or file_size <= 0:
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Invalid file size.")
             
             file = await self.repository.create_file(
-                file_id = file_id, 
+                file_id = str(file_id), 
                 owner_id = user_id,
+                original_filename = str(title),
                 stored_filename = stored_filename,
                 content_type = extension[1::],
                 file_size = file_size,
@@ -52,22 +55,23 @@ class FileServices:
                 status = DocStatus.in_queue,
                 created_at = datetime.now(timezone.utc),
                 updated_at = datetime.now(timezone.utc),
-                file_details = FileRequest(title=title),
                 db = db
                 )
             if not file:
                 raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="File not saved.")
 
-            await self.publisher.publish_file_uploaded(file.file_id)
+            # await self.publisher.publish_file_uploaded(file.file_id)
 
             return file
 
         except HTTPException:
             await self.repository.rollback(db)
+            await self.storage_provider.delete(file_path)
             raise
 
         except Exception as exc:
             await self.repository.rollback(db)
+            await self.storage_provider.delete(file_path)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail= str(exc))
 
 
@@ -85,8 +89,8 @@ class FileServices:
             if not self.storage_provider.exists(file.storage_path):
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
 
-            await self.storage_provider.delete(file.storage_path)
             await self.repository.delete(file.file_id, db)
+            await self.storage_provider.delete(file.storage_path)
             
         except HTTPException:
             await self.repository.rollback(db)

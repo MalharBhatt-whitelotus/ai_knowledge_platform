@@ -1,8 +1,8 @@
-"""Add doc_type and do_id column
+"""Initial user_auth table creation
 
-Revision ID: d34c7b9c1077
-Revises: 0001
-Create Date: 2026-07-30 06:12:19.010219
+Revision ID: 0001
+Revises: 
+Create Date: 2026-07-31 11:18:39.425421
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd34c7b9c1077'
-down_revision: Union[str, Sequence[str], None] = '0001'
+revision: str = '0001'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -29,17 +29,14 @@ def upgrade() -> None:
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('username', sa.String(), nullable=False),
     sa.Column('password_hash', sa.String(), nullable=False),
-    sa.Column('role_enum', sa.Enum('user', 'admin', name='role'), nullable=False),
+    sa.Column('role', sa.Enum('user', 'admin', name='role'), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('doc_id', sa.String(), nullable=False),
-    sa.Column('doc_type_enum', sa.Enum('pdf', 'txt', name='doctype'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
-    op.create_index(op.f('ix_user_auth_doc_id'), 'user_auth', ['doc_id'], unique=True)
     op.create_index(op.f('ix_user_auth_id'), 'user_auth', ['id'], unique=False)
     op.create_index(op.f('ix_user_auth_password_hash'), 'user_auth', ['password_hash'], unique=True)
     op.create_index(op.f('ix_user_auth_user_id'), 'user_auth', ['user_id'], unique=True)
@@ -54,6 +51,5 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_user_auth_user_id'), table_name='user_auth')
     op.drop_index(op.f('ix_user_auth_password_hash'), table_name='user_auth')
     op.drop_index(op.f('ix_user_auth_id'), table_name='user_auth')
-    op.drop_index(op.f('ix_user_auth_doc_id'), table_name='user_auth')
     op.drop_table('user_auth')
     # ### end Alembic commands ###

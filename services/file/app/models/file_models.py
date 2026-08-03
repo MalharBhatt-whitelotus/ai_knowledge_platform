@@ -1,11 +1,11 @@
 from sqlalchemy import Column, String, Integer, DateTime, Enum, Boolean
 
-from services.file.app.config.settings import settings
 from services.file.app.enums import DocType, DocStatus
+from services.file.app.database.file_database import Base
 
+class File(Base):
 
-class File:
-
+    __tablename__ = "files"
     id = Column(Integer, primary_key=True, index=True)
     file_id = Column(String, unique=True, nullable=False, index=True)
     owner_id = Column(String, nullable=False, index=True)
