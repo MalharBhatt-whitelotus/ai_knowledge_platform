@@ -1,10 +1,10 @@
 from enum import StrEnum
 
 class ExchangeName(StrEnum):
-    DOCUMENT = "document.exchange"
+    FILE = "file.exchange"
 
 class QueueName(StrEnum):
-    DOCUMENT_PROCESSING = "document.processing"
+    FILE_PROCESSING = "file.processing"
 
 class RoutingKey(StrEnum):
-    DOCUMENT_UPLOADED = "document.uploaded"
+    FILE_UPLOADED = "file.uploaded"

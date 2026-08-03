@@ -1,6 +1,7 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 class WorkerSetting(BaseSettings):
 
     RABBITMQ_HOST: str
@@ -8,7 +9,7 @@ class WorkerSetting(BaseSettings):
     RABBITMQ_DEFAULT_USER: str
     RABBITMQ_DEFAULT_PASSWORD: str
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=BASE_DIR/".env", extra="ignore")
 
     @property
     def RABBITMQ_URL(self):
@@ -19,3 +20,6 @@ class WorkerSetting(BaseSettings):
         )
 
 settings = WorkerSetting()
+print("BASE_DIR =", BASE_DIR)
+print("ENV FILE =", BASE_DIR / ".env")
+print("RABBITMQ_URL =", settings.RABBITMQ_URL)
