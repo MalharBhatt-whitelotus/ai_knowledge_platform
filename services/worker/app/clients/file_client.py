@@ -1,0 +1,9 @@
+class FileClient:
+    async def get_file(self, file_id: str):
+        ...
+
+    async def download_file(self, file_id: str):
+        ...
+
+    async def update_status(self, file_id: str, status: str):
+        ...

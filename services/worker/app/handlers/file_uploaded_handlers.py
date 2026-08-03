@@ -1,83 +1,124 @@
-import logging
+from shared_lib.logger.logger import get_logger
+
+from services.worker.app.clients.file_client import FileClient
+from services.worker.app.clients.embedding_client import EmbeddingClient
+from services.worker.app.clients.search_client import SearchClient
 
 from services.worker.app.messaging.events import FileUploadedEvent
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class FileUploadedHandler:
     """
-    Handles the business workflow for a DocumentUploaded event.
+    Handles the file.uploaded event.
 
     Responsibilities:
-        - Coordinate document processing
-        - Delegate work to domain services
-        - Raise exceptions on failure so the consumer can NACK the message
-
-    This handler intentionally does NOT contain RabbitMQ logic.
+        - Fetch file metadata
+        - Download the file
+        - Extract text
+        - Chunk text
+        - Generate embeddings
+        - Store vectors
+        - Update file status
     """
 
-    # def __init__(
-    #     self,
-    #     storage_provider,
-    #     pdf_extractor,
-    #     chunking_service,
-    #     embedding_service,
-    #     document_repository,
-    # ):
-    #     self._storage_provider = storage_provider
-    #     self._pdf_extractor = pdf_extractor
-    #     self._chunking_service = chunking_service
-    #     self._embedding_service = embedding_service
-    #     self._document_repository = document_repository
-    
+    def __init__(
+        self,
+        file_client: FileClient,
+        embedding_client: EmbeddingClient,
+        search_client: SearchClient,
+    ) -> None:
+        self.file_client = file_client()
+        self.embedding_client = embedding_client()
+        self.search_client = search_client()
+
     async def handle(
         self,
         event: FileUploadedEvent,
     ) -> None:
         """
-        Process a newly uploaded document.
-
-        Args:
-            event: The validated DocumentUploadedEvent.
-
-        Raises:
-            Exception:
-                Any processing error should propagate so the consumer
-                can NACK the message and RabbitMQ can retry.
+        Handle a file.uploaded event.
         """
 
         logger.info(
-            "Processing uploaded document %s",
+            "Processing file %s",
             event.file_id,
         )
 
-        # -------------------------------------------------------
-        # Future phases
-        # -------------------------------------------------------
+        # ----------------------------------
+        # Step 1
+        # Fetch file metadata
+        # ----------------------------------
 
-        # 1. Download/read document from storage
-        # document = await self._storage_provider.open(event.storage_path)
-
-        # 2. Extract text
-        # text = await self._pdf_extractor.extract(document)
-
-        # 3. Split into chunks
-        # chunks = await self._chunker.chunk(text)
-
-        # 4. Generate embeddings
-        # embeddings = await self._embedding_service.generate(chunks)
-
-        # 5. Persist embeddings
-        # await self._embedding_repository.save(
-        #     document_id=event.document_id,
-        #     embeddings=embeddings,
-        # )
-
-        # 6. Update document status
-        # await self._document_repository.mark_processed(event.document_id)
+        file = await self.file_client.get_file(
+            event.file_id,
+        )
 
         logger.info(
-            "Finished processing document %s",
+            "Fetched metadata for file %s",
+            event.file_id,
+        )
+
+        # ----------------------------------
+        # Step 2
+        # Download file
+        # (Implement later)
+        # ----------------------------------
+
+        # pdf_bytes = await self.file_client.download_file(
+        #     file.id
+        # )
+
+        # ----------------------------------
+        # Step 3
+        # Extract text
+        # (Implement later)
+        # ----------------------------------
+
+        # extracted_text = ...
+
+        # ----------------------------------
+        # Step 4
+        # Chunk text
+        # (Implement later)
+        # ----------------------------------
+
+        # chunks = ...
+
+        # ----------------------------------
+        # Step 5
+        # Generate embeddings
+        # (Implement later)
+        # ----------------------------------
+
+        # embeddings = await self.embedding_client.generate_embeddings(
+        #     chunks
+        # )
+
+        # ----------------------------------
+        # Step 6
+        # Store vectors
+        # (Implement later)
+        # ----------------------------------
+
+        # await self.search_client.store_vectors(
+        #     file.id,
+        #     embeddings,
+        # )
+
+        # ----------------------------------
+        # Step 7
+        # Update file status
+        # (Implement later)
+        # ----------------------------------
+
+        # await self.file_client.update_status(
+        #     file.id,
+        #     "READY",
+        # )
+
+        logger.info(
+            "Finished processing file %s",
             event.file_id,
         )
