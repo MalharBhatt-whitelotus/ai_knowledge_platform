@@ -27,16 +27,23 @@ services:
   rabbitmq:
     image: rabbitmq:4-management
     container_name: ai_rabbitmq
-    restart: always
+    restart: unless-stopped
     env_file:
       - .env
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASSWORD: ${RABBITMQ_DEFAULT_PASSWORD}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASSWORD}
     ports:
-      - "5672:5672"
-      - "15672:15672"
-  
+      - "${RABBITMQ_PORT}:5672"
+      - "15673:15672"
+    volumes:
+    - .:/app
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
   gateway_service:
     build:
       context: .
@@ -170,7 +177,7 @@ services:
       - "8006:8006"
     
     env_file:
-      - .env
+      - services/worker/.env
     
     depends_on:
       - postgres

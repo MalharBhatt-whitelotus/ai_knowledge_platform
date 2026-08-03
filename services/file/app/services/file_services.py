@@ -4,10 +4,16 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import UploadFile, HTTPException, status
 
+from shared_lib.logger.logger import get_logger
+
+from services.worker.app.messaging.events import FileUploadedEvent
+from services.worker.app.messaging.publisher import RabbitMQPublisher
+
 from services.file.app.enums import DocStatus
+from services.file.app.schemas.file_schemas import FileUploadResponse
 from services.file.app.storage.storage_provider import StorageProvider
 from services.file.app.repositories.file_repository import FileRepository as repo
-from services.file.app.schemas.file_schemas import FileUploadResponse
+
 
 
 class FileServices:
@@ -18,10 +24,12 @@ class FileServices:
              * Init Function * 
     -------------------------------------
     """
-    #  publisher : None | None
-    def __init__(self, repository: repo, storage_provider: StorageProvider):
+    #  
+    def __init__(self, repository: repo, storage_provider: StorageProvider, publisher : RabbitMQPublisher):
         self.repository = repository
         self.storage_provider = storage_provider
+        self.publisher = publisher
+        self.logger = get_logger(__name__)
 
 
     """
@@ -60,7 +68,15 @@ class FileServices:
             if not file:
                 raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="File not saved.")
 
-            # await self.publisher.publish_file_uploaded(file.file_id)
+            event = FileUploadedEvent(
+                file_id=str(file_id),
+                owner_id= user_id,
+                storage_path=file_path,
+                content_type=extension[1::],
+            )
+
+            self.logger.info(">>> Publishing FileUploadedEvent...")
+            await self.publisher.publish_file_uploaded(event=event)
 
             return file
 
