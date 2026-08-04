@@ -9,11 +9,10 @@ from shared_lib.logger.logger import get_logger
 from services.worker.app.messaging.events import FileUploadedEvent
 from services.worker.app.messaging.publisher import RabbitMQPublisher
 
-from services.file.app.enums import DocStatus
+from services.file.app.enums import DocStatus, DocType
 from services.file.app.schemas.file_schemas import FileUploadResponse, FileResponse
 from services.file.app.storage.storage_provider import StorageProvider
 from services.file.app.repositories.file_repository import FileRepository as repo
-
 
 
 class FileServices:
@@ -223,6 +222,40 @@ class FileServices:
                 raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="File not available.")
 
             return file_bytes
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+
+
+    """
+    -------------------------------------
+       * Get Internal File Function * 
+    -------------------------------------
+    """ 
+    async def extract_text(self, file_id: str, db: AsyncSession) -> str:
+        try:
+            file_details = await self.repository.get_by_file_id(file_id, db)
+            if not file_details:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            content_type = file_details.content_type
+            if content_type == DocType.pdf.value:
+                ...
+            elif content_type == DocType.txt.value:
+                ...
+            elif content_type == DocType.docx.value:
+                ...
+            elif content_type == DocType.pptx.value:
+                ...
+            elif content_type == DocType.xlsx.value:
+                ...
+            else :
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Invalid File.")
+
+            return ""
 
         except HTTPException:
             raise
