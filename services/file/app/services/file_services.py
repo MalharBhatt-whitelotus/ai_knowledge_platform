@@ -244,7 +244,7 @@ class FileServices:
 
             content_type = file_details.content_type
 
-            parser = ParserFactory.get_parser(content_type=content_type)
+            parser = ParserFactory.get_parser(content_type.value)
 
             file_path = await self.repository.get_file_path_by_file_id(file_id, db)
             if not file_path:
@@ -260,6 +260,7 @@ class FileServices:
             raise
 
         except ValueError as exc:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc))
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail=str(exc))
+        
         except Exception as exc:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
