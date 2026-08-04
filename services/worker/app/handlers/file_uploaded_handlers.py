@@ -57,7 +57,7 @@ class FileUploadedHandler:
 
         logger.info(
             "Fetched metadata for file %s",
-            event.file_id,
+            file.file_id,
         )
 
         # ----------------------------------
