@@ -78,6 +78,18 @@ class FileRepository:
 
     """
     --------------------------------------------
+       * Get File Path By File ID Function *
+    --------------------------------------------
+    """
+    async def get_file_path_by_file_id(file_id: str, db: AsyncSession) -> str:
+        result = await db.execute(select(File).where(File.file_id == file_id))
+        file_details = result.scalar_one_or_none()
+
+        return file_details.storage_path 
+    
+
+    """
+    --------------------------------------------
                * Get By File Name Function *
     --------------------------------------------
     """
