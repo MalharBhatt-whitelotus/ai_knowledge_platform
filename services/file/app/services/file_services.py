@@ -252,7 +252,7 @@ class FileServices:
 
             text = await parser.extract_text(file_path)
             if not text or not text.strip():
-                raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="No text could be extracted.")
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No text could be extracted.")
 
             return text
 
