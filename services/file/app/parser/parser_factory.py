@@ -19,6 +19,8 @@ class ParserFactory:
     @classmethod
     def get_parser(cls, content_type: str):
         parser = cls._parser.get(content_type)
-        if not parser:
-            return None
+
+        if parser is None:
+            raise ValueError(f"Unsupported document type: {content_type}")
+
         return parser
