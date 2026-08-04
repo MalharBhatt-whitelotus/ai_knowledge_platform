@@ -9,7 +9,9 @@ from services.file.app.schemas.file_schemas import FileResponse, FileUploadRespo
 
 from shared_lib.dependencies.role_checker import user_only
 
+
 file_router = APIRouter()
+
 
 @file_router.post("/upload_file", response_model=FileUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_file(
@@ -23,4 +25,16 @@ async def upload_file(
         user_id=current_user.user_id,
         db=db
         )
+    return file
+
+
+@file_router.get("/get_file/{file_id}", response_model=FileResponse, status_code=status.HTTP_200_OK)
+async def get_file(
+    file_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(user_only),
+    services: FileServices = Depends(get_file_service)):
+
+    file = await services.get_file_by_file_id(file_id, db)
+
     return file
