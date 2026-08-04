@@ -115,7 +115,10 @@ class FileUploadedHandler:
             chunks
         )
 
-        logger.info(">>> Generated %d embeddings for file %s", len(embeddings), file.file_id)
+        logger.info(">>> Generated %d embeddings for file %s", 
+                    len(embeddings), 
+                    file.file_id
+                    )
         
         # ----------------------------------
         # Step 6
