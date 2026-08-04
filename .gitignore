@@ -24,3 +24,12 @@ htmlcov/
 
 #txt
 *.txt
+
+#docx
+*.docx
+
+#pptx
+*.pptx
+
+#xlsx
+*.xlsx
