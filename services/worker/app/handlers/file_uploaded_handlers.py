@@ -1,11 +1,10 @@
 from shared_lib.logger.logger import get_logger
 
 from services.worker.app.clients.file_client import FileClient
-from services.worker.app.clients.embedding_client import EmbeddingClient
-from services.worker.app.clients.search_client import SearchClient
-
 from services.worker.app.messaging.events import FileUploadedEvent
-
+from services.worker.app.clients.search_client import SearchClient
+from services.worker.app.clients.embedding_client import EmbeddingClient
+from services.worker.app.chunking.chunker_factory import ChunkerFactory
 logger = get_logger(__name__)
 
 
@@ -94,8 +93,17 @@ class FileUploadedHandler:
         # Chunk text
         # (Implement later)
         # ----------------------------------
+        
+        chunker = ChunkerFactory.get_chunker()
+        chunks = await chunker.chunk(extracted_text,)
 
-        # chunks = ...
+        print(chunks)
+        
+        logger.info(
+            ">>> Created %d chunks for file %s",
+            len(chunks), file.file_id,
+            )
+
 
         # ----------------------------------
         # Step 5
