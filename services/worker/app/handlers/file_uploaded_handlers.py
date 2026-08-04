@@ -42,7 +42,7 @@ class FileUploadedHandler:
         """
 
         logger.info(
-            "Processing file %s",
+            ">>> Processing file %s",
             event.file_id,
         )
 
@@ -52,11 +52,11 @@ class FileUploadedHandler:
         # ----------------------------------
 
         file = await self.file_client.get_file(
-            event.file_id,
+            file_id=event.file_id,
         )
 
         logger.info(
-            "Fetched metadata for file %s",
+            ">>> Fetched metadata for file %s",
             file.file_id,
         )
 
@@ -66,9 +66,14 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        # pdf_bytes = await self.file_client.download_file(
-        #     file.id
-        # )
+        pdf_bytes = await self.file_client.download_file(
+            file.file_id,
+        )
+
+        logger.info(
+            ">>> Fetched bytes for file %s",
+            file.file_id,
+        )
 
         # ----------------------------------
         # Step 3
