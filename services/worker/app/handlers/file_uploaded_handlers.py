@@ -111,10 +111,12 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        # embeddings = await self.embedding_client.generate_embeddings(
-        #     chunks
-        # )
+        embeddings = await self.embedding_client.generate_embeddings(
+            chunks
+        )
 
+        logger.info(">>> Generated %d embeddings for file %s", len(embeddings), file.file_id)
+        
         # ----------------------------------
         # Step 6
         # Store vectors
