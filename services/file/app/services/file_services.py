@@ -214,7 +214,7 @@ class FileServices:
             if not file_path:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
 
-            if not self.storage_provider.exists(file_path):
+            if not await self.storage_provider.exists(file_path):
                             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
             
             file_bytes = await self.storage_provider.download(file_path)
@@ -263,4 +263,5 @@ class FileServices:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail=str(exc))
         
         except Exception as exc:
+            self.logger.error(">>> %s", str(exc))
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
