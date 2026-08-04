@@ -10,7 +10,7 @@ from services.worker.app.messaging.events import FileUploadedEvent
 from services.worker.app.messaging.publisher import RabbitMQPublisher
 
 from services.file.app.enums import DocStatus
-from services.file.app.schemas.file_schemas import FileUploadResponse
+from services.file.app.schemas.file_schemas import FileUploadResponse, FileResponse
 from services.file.app.storage.storage_provider import StorageProvider
 from services.file.app.repositories.file_repository import FileRepository as repo
 
@@ -142,3 +142,32 @@ class FileServices:
 
         except Exception as exc:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
+
+
+    """
+    -------------------------------------
+       * Get File By FileID Function * 
+    -------------------------------------
+    """    
+    async def get_file_by_file_id(self, file_id: int, db: AsyncSession) -> FileResponse:
+        try:
+            file = await self.repository.get_by_file_id(file_id, db)
+            if not file:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            return FileResponse(
+                file_id=file.file_id,
+                owner_id=file.owner_id,
+                original_filename=file.original_filename,
+                content_type=file.content_type,
+                file_size=file.file_size,
+                status=file.status,
+                created_at=file.created_at,
+                updated_at=file.updated_at
+            )
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail= str(exc))
