@@ -9,11 +9,11 @@ from shared_lib.logger.logger import get_logger
 from services.worker.app.messaging.events import FileUploadedEvent
 from services.worker.app.messaging.publisher import RabbitMQPublisher
 
-from services.file.app.enums import DocStatus
-from services.file.app.schemas.file_schemas import FileUploadResponse, FileResponse
+from services.file.app.enums import DocStatus, DocType
+from services.file.app.parser.parser_factory import ParserFactory
 from services.file.app.storage.storage_provider import StorageProvider
 from services.file.app.repositories.file_repository import FileRepository as repo
-
+from services.file.app.schemas.file_schemas import FileUploadResponse, FileResponse
 
 
 class FileServices:
@@ -204,7 +204,7 @@ class FileServices:
 
     """
     -------------------------------------
-       * Get Internal File Function * 
+        * Get File Bytes Function * 
     -------------------------------------
     """ 
     async def get_file_bytes(self, file_id: str, db: AsyncSession) -> bytes:
@@ -214,7 +214,7 @@ class FileServices:
             if not file_path:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
 
-            if not self.storage_provider.exists(file_path):
+            if not await self.storage_provider.exists(file_path):
                             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
             
             file_bytes = await self.storage_provider.download(file_path)
@@ -228,4 +228,40 @@ class FileServices:
             raise
 
         except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+
+
+    """
+    -------------------------------------
+          * Extract Text Function * 
+    -------------------------------------
+    """ 
+    async def extract_text(self, file_id: str, db: AsyncSession) -> str:
+        try:
+            file_details = await self.repository.get_by_file_id(file_id, db)
+            if not file_details:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            content_type = file_details.content_type
+
+            parser = ParserFactory.get_parser(content_type.value)
+
+            file_path = await self.repository.get_file_path_by_file_id(file_id, db)
+            if not file_path:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            text = await parser.extract_text(file_path)
+            if not text or not text.strip():
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No text could be extracted.")
+
+            return text
+
+        except HTTPException:
+            raise
+
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,detail=str(exc))
+        
+        except Exception as exc:
+            self.logger.error(">>> %s", str(exc))
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
