@@ -29,8 +29,7 @@ class AuthClient:
                     status_code=response.status_code,
                     detail=response.json()["detail"],
                 )
-
-            print(response.json())
+            
             return CurrentUserResponse(**response.json())
 
         except httpx.RequestError:

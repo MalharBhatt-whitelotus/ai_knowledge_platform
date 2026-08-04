@@ -44,7 +44,3 @@ class FileUploadedConsumer:
 
             # Processing failure → retry later
             await message.nack(requeue=True)
-
-    async def start_listening(self) -> None:
-        logger.info("Consumer is listening...")
-        await self._rabbitmq.consume(queue_name="file.uploaded", callback=self.consume,)

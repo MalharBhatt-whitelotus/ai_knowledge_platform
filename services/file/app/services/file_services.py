@@ -10,7 +10,7 @@ from services.worker.app.messaging.events import FileUploadedEvent
 from services.worker.app.messaging.publisher import RabbitMQPublisher
 
 from services.file.app.enums import DocStatus
-from services.file.app.schemas.file_schemas import FileUploadResponse
+from services.file.app.schemas.file_schemas import FileUploadResponse, FileResponse
 from services.file.app.storage.storage_provider import StorageProvider
 from services.file.app.repositories.file_repository import FileRepository as repo
 
@@ -122,16 +122,16 @@ class FileServices:
            * Download File Function * 
     -------------------------------------
     """
-    async def download_file(self, file_id: str, db: AsyncSession) -> UploadFile:
+    async def download_file(self, file_id: str, db: AsyncSession) -> bytes:
         try:
-            file = self.repository.get_by_file_id(file_id, db)
-            if not file:
+            file_path = await self.repository.get_file_path_by_file_id(file_id, db)
+            if not file_path:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
 
-            if not self.storage_provider.exists(file.storage_path):
+            if not self.storage_provider.exists(file_path):
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
 
-            downloaded_file = self.storage_provider.download(file.storage_path)
+            downloaded_file = await self.storage_provider.download(file_path)
             if not downloaded_file:
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="File not downloaded.")
 
@@ -142,3 +142,90 @@ class FileServices:
 
         except Exception as exc:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error.")
+
+
+    """
+    -------------------------------------
+       * Get File By FileID Function * 
+    -------------------------------------
+    """    
+    async def get_file_by_file_id(self, file_id: str, user_id: str, db: AsyncSession) -> FileResponse:
+        try:
+            file = await self.repository.get_by_file_id(file_id, db)
+            if not file:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            if file.owner_id != user_id:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized Access.")
+            
+            return FileResponse(
+                file_id=file.file_id,
+                owner_id=file.owner_id,
+                original_filename=file.original_filename,
+                content_type=file.content_type,
+                file_size=file.file_size,
+                status=file.status,
+                created_at=file.created_at,
+                updated_at=file.updated_at
+            )
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail= str(exc))
+    """
+    -------------------------------------
+       * Get Internal File Function * 
+    -------------------------------------
+    """    
+    async def get_internal_file(self, file_id: str, db: AsyncSession) -> FileResponse:
+        try:
+            file = await self.repository.get_by_file_id(file_id, db)
+            if not file:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+            
+            return FileResponse(
+                file_id=file.file_id,
+                owner_id=file.owner_id,
+                original_filename=file.original_filename,
+                content_type=file.content_type,
+                file_size=file.file_size,
+                status=file.status,
+                created_at=file.created_at,
+                updated_at=file.updated_at
+            )
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail= str(exc))
+
+    """
+    -------------------------------------
+       * Get Internal File Function * 
+    -------------------------------------
+    """ 
+    async def get_file_bytes(self, file_id: str, db: AsyncSession) -> bytes:
+        try:
+            file_path = await self.repository.get_file_path_by_file_id(file_id, db)
+            
+            if not file_path:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+
+            if not self.storage_provider.exists(file_path):
+                            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+            
+            file_bytes = await self.storage_provider.download(file_path)
+
+            if not file_bytes:
+                raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail="File not available.")
+
+            return file_bytes
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
