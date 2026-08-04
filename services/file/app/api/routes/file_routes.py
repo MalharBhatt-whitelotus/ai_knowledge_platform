@@ -1,12 +1,11 @@
 from io import BytesIO
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter,status,UploadFile,File, Depends
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, PlainTextResponse
 
 from services.file.app.database.file_database import get_db
 from services.file.app.dependencies.file_dependency import get_file_service
 from services.file.app.services.file_services import FileServices
-from services.file.app.storage.storage_provider import StorageProvider
 from services.file.app.schemas.file_schemas import FileResponse, FileUploadResponse
 
 from shared_lib.dependencies.role_checker import user_only
@@ -64,3 +63,14 @@ async def download_file(
     file_bytes = await services.get_file_bytes(file_id, db)
 
     return StreamingResponse(content= BytesIO(file_bytes))
+
+@file_router.get("/internal/extract_text/{file_id}", response_class=PlainTextResponse, status_code=status.HTTP_200_OK)
+async def extract_text(
+    file_id: str, 
+    db: AsyncSession = Depends(get_db), 
+    services: FileServices = Depends(get_file_service)
+    ):
+
+    text = await services.extract_text(file_id, db)
+
+    return text
