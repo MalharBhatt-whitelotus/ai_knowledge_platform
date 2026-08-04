@@ -1,7 +1,7 @@
 import httpx
 from fastapi import HTTPException, status
 
-from services.worker.app.schemas.file_client_schemas import FileResponse, FileDownloadResponse
+from services.worker.app.schemas.file_client_schemas import FileResponse
 
 class FileClient:
 
