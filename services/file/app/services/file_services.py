@@ -149,12 +149,15 @@ class FileServices:
        * Get File By FileID Function * 
     -------------------------------------
     """    
-    async def get_file_by_file_id(self, file_id: int, db: AsyncSession) -> FileResponse:
+    async def get_file_by_file_id(self, file_id: int, user_id: str, db: AsyncSession) -> FileResponse:
         try:
             file = await self.repository.get_by_file_id(file_id, db)
             if not file:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
 
+            if file.owner_id != user_id:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized Access.")
+            
             return FileResponse(
                 file_id=file.file_id,
                 owner_id=file.owner_id,

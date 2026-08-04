@@ -35,6 +35,6 @@ async def get_file(
     current_user = Depends(user_only),
     services: FileServices = Depends(get_file_service)):
 
-    file = await services.get_file_by_file_id(file_id, db)
+    file = await services.get_file_by_file_id(file_id, current_user.user_id, db)
 
     return file
