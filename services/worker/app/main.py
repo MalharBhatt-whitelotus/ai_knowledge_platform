@@ -31,6 +31,8 @@ async def startup(app: FastAPI):
     handler = FileUploadedHandler(FileClient, EmbeddingClient, SearchClient)
     consumer = FileUploadedConsumer(rabbitmq,handler)
 
+
+    logger.info("Consumer is listening...")
     await queue.consume(consumer.consume)
 
     app.state.rabbitmq = rabbitmq
