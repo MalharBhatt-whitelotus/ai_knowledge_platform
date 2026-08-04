@@ -61,8 +61,8 @@ class FileClient:
         except httpx.RequestError:
             raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="File Service Unavailable.")
 
-        except HTTPException:
-             raise
+        except HTTPException: 
+            raise
 
     async def update_status(self, file_id: str, status: str):
         ...
