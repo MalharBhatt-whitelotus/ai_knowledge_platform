@@ -66,7 +66,7 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        pdf_bytes = await self.file_client.download_file(
+        file_bytes = await self.file_client.download_file(
             file.file_id,
         )
 
@@ -81,8 +81,14 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        # extracted_text = ...
+        extracted_text = await self.file_client.extract_text(file.file_id,)
 
+        logger.info(
+            ">>> Extracted text for file %s",
+            file.file_id,
+        )
+
+        print(extracted_text)
         # ----------------------------------
         # Step 4
         # Chunk text
