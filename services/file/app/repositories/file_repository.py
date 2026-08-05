@@ -124,6 +124,22 @@ class FileRepository:
 
     """
     --------------------------------------------
+            * Update Status Function *
+    --------------------------------------------
+    """
+    async def update_status(file_id: str, status: DocStatus, db: AsyncSession) -> str:
+        result = await db.execute(select(File).where(File.file_id == file_id))
+        file = result.scalar_one_or_none()
+        file.status = status
+
+        await db.commit()
+        await db.refresh(file)
+
+        return file.status.value
+
+
+    """
+    --------------------------------------------
             * Rollback DB Function *
     --------------------------------------------
     """
@@ -137,8 +153,6 @@ class FileRepository:
     --------------------------------------------
     """
     async def lists_documents():
-        ...
-    async def update_status():
         ...
     async def count():
         ...
