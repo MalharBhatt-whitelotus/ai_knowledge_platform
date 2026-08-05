@@ -129,11 +129,14 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        # await self.search_client.store_vectors(
-        #     file.id,
-        #     embeddings,
-        # )
+        await self.search_client.store_vectors(
+            file.file_id,
+            file.owner_id,
+            chunks,
+            embeddings["embeddings"],
+        )
 
+        logger.info(">>> Embeddings stored.")
         # ----------------------------------
         # Step 7
         # Update file status

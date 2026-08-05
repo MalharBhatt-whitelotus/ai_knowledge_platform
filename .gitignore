@@ -18,6 +18,8 @@ htmlcov/
 
 #database
 *.db
+*.sqlite3
+chromadb/
 
 #pdf
 *.pdf

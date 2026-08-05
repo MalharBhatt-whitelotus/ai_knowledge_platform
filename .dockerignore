@@ -21,8 +21,10 @@ htmlcov
 uploads/
 tests/
 docs/
+chromadb/
 
 *.db
+*.sqlite3
 *.pdf
 *.txt
 *.docx
