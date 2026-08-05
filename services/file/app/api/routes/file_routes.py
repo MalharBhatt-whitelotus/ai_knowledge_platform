@@ -85,5 +85,5 @@ async def status_update(
 
     logger.info(">>> %s",file_id)
     logger.info(">>> %s",status)
-    
-    return "connected"
+    response = await services.status_update(file_id, status, db)
+    return response
