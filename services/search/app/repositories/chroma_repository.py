@@ -6,7 +6,7 @@ class ChromaRepository:
         self.collection = collection
 
     async def add(self, file_id: str, owner_id: str, chunks: list[str], embeddings: list[list[float]]) -> None:
-        ids = [str(uuid.uuid4) for _ in chunks]
+        ids = [str(uuid.uuid4()) for _ in chunks]
         metadatas = [
             {
                 "file_id": file_id,
