@@ -143,12 +143,12 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        await self.file_client.update_status(
-            file.id,
+        response =  await self.file_client.update_status(
+            file.file_id,
             "READY",
         )
 
-        logger.info(">>> File status updated.")
+        logger.info(">>> File status updated. %s", response)
 
         logger.info(
             "Finished processing file %s",
