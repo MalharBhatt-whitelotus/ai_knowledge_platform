@@ -64,5 +64,22 @@ class FileClient:
         except HTTPException: 
             raise
 
-    async def update_status(self, file_id: str, status: str):
-        ...
+    async def update_status(self, file_id: str, status_update: str) -> str:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                respone = await client.post(
+                    f"{self.Base_url}/internal/status_update/{file_id}",
+                    params={"status":status_update},
+                    )
+
+                if respone.status_code != status.HTTP_200_OK:
+                    raise HTTPException(status_code=respone.status_code, detail=respone.json().get("detail"))
+
+                return respone.json()
+
+            except HTTPException:
+                raise
+
+            except httpx.RequestError as r_exc:
+                raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="File Service unavailable.")
+            
