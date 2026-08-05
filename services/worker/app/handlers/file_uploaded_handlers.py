@@ -1,4 +1,5 @@
 from shared_lib.logger.logger import get_logger
+from shared_lib.enums import DocStatus
 
 from services.worker.app.clients.file_client import FileClient
 from services.worker.app.messaging.events import FileUploadedEvent
@@ -111,31 +112,44 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        # embeddings = await self.embedding_client.generate_embeddings(
-        #     chunks
-        # )
+        embeddings = await self.embedding_client.generate_embeddings(
+            chunks
+        )
 
+        print(embeddings)
+
+        logger.info(">>> Generated %d embeddings for file %s", 
+                    len(embeddings), 
+                    file.file_id
+                    )
+
+        
         # ----------------------------------
         # Step 6
         # Store vectors
         # (Implement later)
         # ----------------------------------
 
-        # await self.search_client.store_vectors(
-        #     file.id,
-        #     embeddings,
-        # )
+        await self.search_client.store_vectors(
+            file.file_id,
+            file.owner_id,
+            chunks,
+            embeddings["embeddings"],
+        )
 
+        logger.info(">>> Embeddings stored.")
         # ----------------------------------
         # Step 7
         # Update file status
         # (Implement later)
         # ----------------------------------
 
-        # await self.file_client.update_status(
-        #     file.id,
-        #     "READY",
-        # )
+        response =  await self.file_client.update_status(
+            file.file_id,
+            DocStatus.completed.value,
+        )
+
+        logger.info(">>> File status updated. %s", response)
 
         logger.info(
             "Finished processing file %s",

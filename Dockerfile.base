@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1.7
+
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install build tools only if some dependencies need compilation
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        g++ && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Copy dependency files only
+COPY pyproject.toml ./
+# COPY uv.lock ./
+
+# Install dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system .
+
+# Source code is intentionally NOT copied here.
