@@ -265,3 +265,26 @@ class FileServices:
         except Exception as exc:
             self.logger.error(">>> %s", str(exc))
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+
+
+    """
+    -------------------------------------
+          * Extract Text Function * 
+    -------------------------------------
+    """ 
+    async def status_update(self, file_id: str, updated_status: DocStatus, db: AsyncSession) -> str:
+        try:
+            if not await self.repository.get_by_file_id(file_id, db):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+            response =  await self.repository.update_status(file_id, updated_status, db)
+            if not response:
+                raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="File status not updated.")
+
+            return response
+        
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
