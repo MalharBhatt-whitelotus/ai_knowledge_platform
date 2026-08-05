@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.search.app.schemas.search_schemas import StoreEmbeddingRequest, StoreEmbeddingResponse
-from services.search.app.services.search_service import SearchService as service
+from services.search.app.services import service
 
 search_router = APIRouter()
 
