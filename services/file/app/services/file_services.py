@@ -269,7 +269,7 @@ class FileServices:
 
     """
     -------------------------------------
-          * Extract Text Function * 
+          * Status Update Function * 
     -------------------------------------
     """ 
     async def status_update(self, file_id: str, updated_status: DocStatus, db: AsyncSession) -> str:
