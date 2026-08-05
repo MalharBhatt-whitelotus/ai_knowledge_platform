@@ -1,12 +1,15 @@
 from sentence_transformers import SentenceTransformer
 from fastapi import HTTPException, status
 
+from shared_lib.logger.logger import get_logger
+
 
 class EmbeddingService:
 
 
     def __init__(self) -> None:
-        self.model = SentenceTransformer | None = None
+        self.model : SentenceTransformer | None = None
+        self.logger = get_logger(__name__)
 
 
     def load_model(self) -> None:
@@ -22,8 +25,8 @@ class EmbeddingService:
             if not chunks:
                 raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Empty chunks are not allowed")
 
-            embeddings = self.model(chunks, convert_to_numpy=True, normalize_embeddings=True,)
-            if not embeddings:
+            embeddings = self.model.encode(chunks, convert_to_numpy=True, normalize_embeddings=True,)
+            if embeddings is None or len(embeddings) == 0:
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Unable to create embeddings.")
             
             return embeddings.tolist()
@@ -35,4 +38,5 @@ class EmbeddingService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail= str(r_exc))
 
         except Exception as exc:
+            self.logger.error(">>> %s",exc)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
