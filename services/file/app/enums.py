@@ -1,6 +1,5 @@
 import enum
 
-
 class DocType(enum.Enum):
     pdf = "pdf"
     txt = "txt"

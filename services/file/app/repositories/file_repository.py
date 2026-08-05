@@ -4,7 +4,7 @@ from datetime import datetime
 
 from services.file.app.enums import  DocType, DocStatus
 from services.file.app.models.file_models import File
-from services.file.app.schemas.file_schemas import FileRequest, FileResponse, FileUploadResponse
+from services.file.app.schemas.file_schemas import FileResponse, FileUploadResponse
 
 
 class FileRepository:
@@ -18,6 +18,7 @@ class FileRepository:
     async def create_file(
             file_id: str,
             owner_id: str,
+            original_filename: str, 
             stored_filename: str,
             content_type: DocType,
             file_size: int,
@@ -25,7 +26,6 @@ class FileRepository:
             status: DocStatus,
             created_at: datetime,
             updated_at: datetime,
-            file_details: FileRequest, 
             db: AsyncSession
             ) -> FileUploadResponse:
 
@@ -33,7 +33,7 @@ class FileRepository:
         file = File(
             file_id = file_id,
             owner_id = owner_id,
-            original_filename = file_details.title,
+            original_filename = original_filename,
             stored_filename = stored_filename,
             content_type = content_type,
             file_size = file_size,
@@ -78,6 +78,18 @@ class FileRepository:
 
     """
     --------------------------------------------
+       * Get File Path By File ID Function *
+    --------------------------------------------
+    """
+    async def get_file_path_by_file_id(file_id: str, db: AsyncSession) -> str:
+        result = await db.execute(select(File).where(File.file_id == file_id))
+        file_details = result.scalar_one_or_none()
+
+        return file_details.storage_path 
+    
+
+    """
+    --------------------------------------------
                * Get By File Name Function *
     --------------------------------------------
     """
@@ -112,6 +124,22 @@ class FileRepository:
 
     """
     --------------------------------------------
+            * Update Status Function *
+    --------------------------------------------
+    """
+    async def update_status(file_id: str, status: DocStatus, db: AsyncSession) -> str:
+        result = await db.execute(select(File).where(File.file_id == file_id))
+        file = result.scalar_one_or_none()
+        file.status = status
+
+        await db.commit()
+        await db.refresh(file)
+
+        return file.status.value
+
+
+    """
+    --------------------------------------------
             * Rollback DB Function *
     --------------------------------------------
     """
@@ -125,8 +153,6 @@ class FileRepository:
     --------------------------------------------
     """
     async def lists_documents():
-        ...
-    async def update_status():
         ...
     async def count():
         ...

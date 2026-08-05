@@ -1,11 +1,11 @@
 import uuid
-from passlib.context import CryptContext
-
+from pwdlib import PasswordHash
+from shared_lib.logger.logger import get_logger
 
 class AuthUtils:
 
 
-   pwd_handler = CryptContext(schemes=["bcrypt"], deprecated = "auto")
+   pwd_handler = PasswordHash.recommended()
 
 
    """
@@ -30,10 +30,7 @@ class AuthUtils:
    """
    @staticmethod
    def hash_password(password: str) -> str:
-      print(password)
-      hashed_password = AuthUtils.pwd_handler.hash(password)
-
-      return hashed_password
+      return AuthUtils.pwd_handler.hash(password)
 
 
    """
@@ -43,8 +40,6 @@ class AuthUtils:
    """
    @staticmethod
    def verify_password(password: str, hashed_password: str) -> bool:
-      print(password)
-      print(hashed_password)
       return AuthUtils.pwd_handler.verify(password, hashed_password)
 
 
@@ -55,4 +50,4 @@ class AuthUtils:
    """
    @staticmethod
    def get_uuid() -> str:
-      return uuid.uuid4()
+      return str(uuid.uuid4())

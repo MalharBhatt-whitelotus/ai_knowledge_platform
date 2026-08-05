@@ -1,8 +1,8 @@
 from fastapi import Depends, HTTPException, status
 
-from services.auth.app.models.auth_models import Role
-from services.auth.app.schemas.auth_schemas import CurrentUserResponse
-from services.auth.app.dependencies.current_user import get_current_user
+from shared_lib.enums import Role
+from shared_lib.schemas.current_user import CurrentUserResponse
+from shared_lib.clients.auth_client import auth_client
 
 
 class RoleChecker:
@@ -12,12 +12,12 @@ class RoleChecker:
         self.allowed_role = allowed_roles
 
 
-    def __call__(self, current_user: CurrentUserResponse = Depends(get_current_user)) -> CurrentUserResponse:
+    async def __call__(self, current_user=Depends(auth_client)) -> CurrentUserResponse:
         try:
             if not current_user:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized User.")
 
-            if current_user.role not in self.allowed_role:
+            if current_user.role.value not in self.allowed_role:
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not allowed.")
 
             return current_user

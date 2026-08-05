@@ -18,9 +18,20 @@ htmlcov/
 
 #database
 *.db
+*.sqlite3
+chromadb/
 
 #pdf
 *.pdf
 
 #txt
 *.txt
+
+#docx
+*.docx
+
+#pptx
+*.pptx
+
+#xlsx
+*.xlsx

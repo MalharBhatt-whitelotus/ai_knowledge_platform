@@ -1,184 +1,300 @@
-version: "3.9"
-
 services:
+  # --------------------------------------------------------------------------
+  # Infrastructure
+  # --------------------------------------------------------------------------
 
   postgres:
     image: postgres:17
     container_name: ai_knowledge_platform_server
-    restart: always
+    restart: unless-stopped
+
     env_file:
       - .env
+
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
     ports:
       - "${POSTGRES_PORT}:5432"
-    volumes:
-      - postgre_data:/var/lib/postgresql/data
 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   redis:
-    image: redis:7
+    image: redis:7-alpine
     container_name: ai_redis
-    restart: always
+    restart: unless-stopped
+
     ports:
       - "6379:6379"
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:4-management
     container_name: ai_rabbitmq
-    restart: always
+    restart: unless-stopped
+
     env_file:
       - .env
+
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASSWORD: ${RABBITMQ_DEFAULT_PASSWORD}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASSWORD}
+
     ports:
-      - "5672:5672"
-      - "15672:15672"
-  
+      - "${RABBITMQ_PORT}:5672"
+      - "15673:15672"
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------------
+  # Base Image (Build Only)
+  # --------------------------------------------------------------------------
+
+  ai-base:
+    image: ai-base
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+
+  # --------------------------------------------------------------------------
+  # Gateway
+  # --------------------------------------------------------------------------
+
   gateway_service:
+    image: gateway_service
     build:
       context: .
       dockerfile: services/gateway/Dockerfile
-    
+
     container_name: gateway_service
+
+    env_file:
+      - .env
 
     ports:
       - "8000:8000"
 
-    env_file:
-      - .env
-    
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    
-    volumes:
-     - .:/app
-  
-  ai_service:
-    build:
-      context: . 
-      dockerfile: services/ai/Dockerfile
-    
-    container_name: ai_service
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-base:
+        condition: service_completed_successfully
 
-    ports:
-      - "8005:8005"
-    
-    env_file:
-      - .env
-    
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    
     volumes:
       - .:/app
+
+  # --------------------------------------------------------------------------
+  # Auth
+  # --------------------------------------------------------------------------
+
   auth_service:
+    image: auth_service
+
     build:
-      context: . 
+      context: .
       dockerfile: services/auth/Dockerfile
-    
+
     container_name: auth_service
+
+    env_file:
+      - services/auth/.env
 
     ports:
       - "8001:8001"
-    
-    env_file:
-      - services/auth/.env
-    
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    
-    volumes:
-      - .:/app
-  
-  embedding_service:
-    build:
-      context: . 
-      dockerfile: services/embedding/Dockerfile
-    
-    container_name: embedding_service
 
-    ports:
-      - "8003:8003"
-    
-    env_file:
-      - .env
-    
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-base:
+        condition: service_completed_successfully
+
     volumes:
       - .:/app
+
+  # --------------------------------------------------------------------------
+  # File
+  # --------------------------------------------------------------------------
+
   file_service:
+    image: file_service
+
     build:
-      context: . 
+      context: .
       dockerfile: services/file/Dockerfile
-    
+
     container_name: file_service
+
+    env_file:
+      - services/file/.env
 
     ports:
       - "8002:8002"
-    
-    env_file:
-      - services/file/.env
-    
+
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-base:
+        condition: service_completed_successfully
+
     volumes:
       - .:/app
-  search_service:
+
+  # --------------------------------------------------------------------------
+  # Embedding
+  # --------------------------------------------------------------------------
+
+  embedding_service:
+    image: embedding_service
+
     build:
-      context: . 
+      context: .
+      dockerfile: services/embedding/Dockerfile
+
+    container_name: embedding_service
+
+    env_file:
+      - .env
+
+    ports:
+      - "8003:8003"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-base:
+        condition: service_completed_successfully
+
+    volumes:
+      - .:/app
+
+  # --------------------------------------------------------------------------
+  # Search
+  # --------------------------------------------------------------------------
+
+  search_service:
+    image: search_service
+
+    build:
+      context: .
       dockerfile: services/search/Dockerfile
-    
+
     container_name: search_service
+
+    env_file:
+      - .env
 
     ports:
       - "8004:8004"
-    
-    env_file:
-      - .env
-    
+
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-base:
+        condition: service_completed_successfully
+
     volumes:
       - .:/app
-  worker_service:
+
+  # --------------------------------------------------------------------------
+  # AI
+  # --------------------------------------------------------------------------
+
+  ai_service:
+    image: ai_service
+
     build:
-      context: . 
+      context: .
+      dockerfile: services/ai/Dockerfile
+
+    container_name: ai_service
+
+    env_file:
+      - .env
+
+    ports:
+      - "8005:8005"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-base:
+        condition: service_completed_successfully
+
+    volumes:
+      - .:/app
+
+  # --------------------------------------------------------------------------
+  # Worker
+  # --------------------------------------------------------------------------
+
+  worker_service:
+    image: worker_service
+
+    build:
+      context: .
       dockerfile: services/worker/Dockerfile
-    
+
     container_name: worker_service
+
+    env_file:
+      - services/worker/.env
 
     ports:
       - "8006:8006"
-    
-    env_file:
-      - .env
-    
+
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ai-base:
+        condition: service_completed_successfully
+
     volumes:
       - .:/app
-  
+
 volumes:
-  postgre_data:
+  postgres_data:
