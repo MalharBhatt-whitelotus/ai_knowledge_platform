@@ -19,6 +19,6 @@ class ChromaRepository:
         self.collection.add(
             ids=ids,
             embeddings=embeddings,
-            chunks=chunks,
+            documents=chunks,
             metadatas=metadatas
         )
