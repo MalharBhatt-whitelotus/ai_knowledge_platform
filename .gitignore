@@ -18,6 +18,7 @@ htmlcov/
 
 #database
 *.db
+*.sqlite3
 
 #pdf
 *.pdf

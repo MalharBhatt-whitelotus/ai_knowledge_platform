@@ -23,6 +23,7 @@ tests/
 docs/
 
 *.db
+*.sqlite3
 *.pdf
 *.txt
 *.docx
