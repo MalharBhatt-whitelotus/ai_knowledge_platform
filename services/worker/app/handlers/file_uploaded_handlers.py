@@ -129,10 +129,10 @@ class FileUploadedHandler:
         # (Implement later)
         # ----------------------------------
 
-        # await self.search_client.store_vectors(
-        #     file.id,
-        #     embeddings,
-        # )
+        await self.search_client.store_vectors(
+            file.id,
+            embeddings,
+        )
 
         # ----------------------------------
         # Step 7
