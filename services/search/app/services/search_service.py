@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from services.search.app.repositories.chroma_repository import ChromaRepository
 from services.search.app.schemas.search_schemas import StoreEmbeddingRequest, StoreEmbeddingResponse
 
+
 class SearchService:
     def __init__(self, repo: ChromaRepository) -> None:
         self.repo = repo
@@ -13,7 +14,7 @@ class SearchService:
                 file_id = request.file_id, 
                 owner_id=request.owner_id,
                 chunks=request.chunks,
-                embeddings=request.chunks
+                embeddings=request.embeddings
                 )
 
             return StoreEmbeddingResponse(
