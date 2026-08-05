@@ -1,4 +1,5 @@
 from shared_lib.logger.logger import get_logger
+from shared_lib.enums import DocStatus
 
 from services.worker.app.clients.file_client import FileClient
 from services.worker.app.messaging.events import FileUploadedEvent
@@ -145,7 +146,7 @@ class FileUploadedHandler:
 
         response =  await self.file_client.update_status(
             file.file_id,
-            "READY",
+            DocStatus.completed.value,
         )
 
         logger.info(">>> File status updated. %s", response)
