@@ -19,6 +19,23 @@ Upload documents → parse & chunk → embed → index → semantically search �
 
 ---
 
+## 📊 Project Stats
+
+<div align="center">
+
+[![Commits](https://badgen.net/github/commits/MalharBhatt-whitelotus/ai_knowledge_platform/main)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/commits/main)
+[![Open PRs](https://badgen.net/github/open-prs/MalharBhatt-whitelotus/ai_knowledge_platform)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/pulls)
+[![Merged PRs](https://badgen.net/github/merged-prs/MalharBhatt-whitelotus/ai_knowledge_platform)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/pulls?q=is%3Apr+is%3Amerged)
+[![Closed PRs](https://badgen.net/github/closed-prs/MalharBhatt-whitelotus/ai_knowledge_platform)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/pulls?q=is%3Apr+is%3Aclosed)
+[![Last Commit](https://badgen.net/github/last-commit/MalharBhatt-whitelotus/ai_knowledge_platform/main)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/commits/main)
+[![Contributors](https://badgen.net/github/contributors/MalharBhatt-whitelotus/ai_knowledge_platform)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/graphs/contributors)
+
+*Badges are served live by [Badgen](https://badgen.net/) from the GitHub API, so the counts above update automatically as the repository changes — no manual editing needed.*
+
+</div>
+
+---
+
 ## 📖 Overview
 
 **AI Knowledge Platform** is an enterprise-style backend that turns unstructured documents into a searchable, conversational knowledge base. It follows an **event-driven microservices architecture**: every service owns a single responsibility, communicates over well-defined internal APIs, and scales independently behind an API Gateway.
@@ -340,6 +357,8 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 
 **Malhar Bhatt**
 GitHub: [@MalharBhatt-whitelotus](https://github.com/MalharBhatt-whitelotus)
+
+
 
 ---
 
