@@ -34,14 +34,14 @@ class SearchService:
             )
 
 
-    async def ask_service(self, request: AskQuestionRequest) -> AskQuestionResponse:
+    async def ask_question(self, request: AskQuestionRequest) -> AskQuestionResponse:
         try:
             query_embedding = await self.embedding.generate_embeddings(request.question)
             if not query_embedding:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No relevent data found.")
 
             search_results = await self.repo.search(
-                embeddings=query_embedding,
+                embeddings=query_embedding.get("embeddings"),
                 top_k=request.top_k
                 )
             if not search_results:
@@ -49,9 +49,9 @@ class SearchService:
 
             result = [
                 RetrivedChunks(
-                    content=result.content,
-                    metadatas=result.metadatas,
-                    score=result.score,
+                    content=result.get("file"),
+                    metadatas=result.get("metadata"),
+                    score=result.get("score"),
                     )
                     for result in search_results
                 ]
