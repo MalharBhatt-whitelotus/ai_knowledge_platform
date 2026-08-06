@@ -23,7 +23,7 @@ class SearchClient:
                 if response.status_code != status.HTTP_200_OK:
                     raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
 
-                return response
+                return response.json()
 
             except HTTPException:
                 raise
