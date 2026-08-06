@@ -22,3 +22,23 @@ class ChromaRepository:
             documents=chunks,
             metadatas=metadatas
         )
+
+    async def search(self, embeddings: list[list[float]], top_k:int) -> list[dict]:
+        results = self.collection.query(
+            query_embeddings=embeddings,
+            n_results = top_k,
+        )
+
+        files = results.get("documents", [[]])[0]
+        metadatas = results.get("metadatas", [[]])[0]
+        distances = results.get("distances", [[]])[0]
+        ids = results.get("ids", [[]])[0]
+
+        return [{
+            "id": doc_id,
+            "file": file,
+            "metadata": metadata,
+            "score": distance,
+        }
+        for doc_id, file, metadata, distance in zip(ids, files, metadatas, distances)
+        ]
