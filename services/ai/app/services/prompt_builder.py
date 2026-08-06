@@ -11,7 +11,7 @@ class PromptBuilder:
             context = "No relevent context found."
         else:
             context = "\n\n".join(
-                f"[Chunk {index}]\n{chunk.content}"
+                f"[Chunk {index}]\n{chunk.get("content")}"
                 for index, chunk in enumerate(chunks, start=1)
                 )
         return f"""
