@@ -15,7 +15,7 @@ class StoreEmbeddingResponse(BaseModel):
     chunks_stored: int
 
 
-class AskQuestionResponse(BaseModel):
+class AskQuestionRequest(BaseModel):
     question: str = Field(min_lenght=1, max_length=500)
     top_k: int = Field(default=5, ge=1, le=20)
 
