@@ -1,11 +1,14 @@
-from shared_lib.logger.logger import get_logger
 from shared_lib.enums import DocStatus
+from shared_lib.logger.logger import get_logger
+from shared_lib.retry.decorators import http_retry
 
 from services.worker.app.clients.file_client import FileClient
 from services.worker.app.messaging.events import FileUploadedEvent
 from services.worker.app.clients.search_client import SearchClient
 from services.worker.app.clients.embedding_client import EmbeddingClient
 from services.worker.app.chunking.chunker_factory import ChunkerFactory
+
+
 logger = get_logger(__name__)
 
 
@@ -23,6 +26,7 @@ class FileUploadedHandler:
         - Update file status
     """
 
+
     def __init__(
         self,
         file_client: FileClient,
@@ -33,6 +37,8 @@ class FileUploadedHandler:
         self.embedding_client = embedding_client()
         self.search_client = search_client()
 
+
+    @http_retry
     async def handle(
         self,
         event: FileUploadedEvent,

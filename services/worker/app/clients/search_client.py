@@ -2,12 +2,18 @@ import httpx
 from fastapi import HTTPException, status
 
 from shared_lib.logger.logger import get_logger
+from shared_lib.retry.decorators import http_retry
+
 
 class SearchClient:
+
+
     def __init__(self):
         self.base_url = "http://search_service:8004"
         self.logger = get_logger(__name__)
 
+
+    @http_retry
     async def store_vectors(self, file_id: str, owner_id: str, chunks: list[str], embeddings: list[list[float]]):
         async with httpx.AsyncClient(timeout=30.0) as client:
             try:

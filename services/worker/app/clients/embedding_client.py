@@ -1,6 +1,7 @@
 import httpx
 from fastapi import HTTPException, status
 
+from shared_lib.retry.decorators import http_retry
 
 class EmbeddingClient:
 
@@ -9,6 +10,7 @@ class EmbeddingClient:
         self.base_url = "http://embedding_service:8003"
 
 
+    @http_retry
     async def generate_embeddings(self, chunks: list[str]) -> list[list[float]]:
         async with httpx.AsyncClient(timeout=10.0) as client:
             try:
