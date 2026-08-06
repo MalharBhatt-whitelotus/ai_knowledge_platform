@@ -1,416 +1,160 @@
 # 🚀 AI Knowledge Platform
 
-> A scalable, AI-powered Knowledge Management Platform built using a Microservices Architecture with FastAPI, PostgreSQL, RabbitMQ, Redis, Docker, JWT Authentication, and Retrieval-Augmented Generation (RAG).
+> A scalable, AI-powered Knowledge Management Platform built using a Microservices Architecture with FastAPI, PostgreSQL, RabbitMQ, ChromaDB, Docker, JWT Authentication, Sentence Transformers, and Retrieval-Augmented Generation (RAG).
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Message%20Broker-orange)
-![Redis](https://img.shields.io/badge/Redis-Cache-red)
+![ChromaDB](https://img.shields.io/badge/VectorDB-ChromaDB-success)
+![SentenceTransformers](https://img.shields.io/badge/Embeddings-SentenceTransformers-red)
 ![License](https://img.shields.io/badge/License-MIT-green)
-
----
 
 # 📖 Overview
 
-The AI Knowledge Platform is an enterprise-ready backend system designed to ingest, process, index, and query knowledge from documents using modern AI techniques.
-
-The platform follows a **Microservices Architecture**, where every service has its own responsibility and database, making the application highly scalable, maintainable, and production-ready.
+The AI Knowledge Platform is an enterprise-ready backend built around an event-driven microservices architecture. Documents are uploaded, processed asynchronously through RabbitMQ, parsed into text, chunked, embedded using Sentence Transformers, indexed in ChromaDB, and made available for semantic search. The project is designed as the foundation for a production-ready RAG application.
 
 ---
 
 # ✨ Features
 
-- 🔐 JWT Authentication & Authorization
-- 👤 User Management
-- 📄 PDF Upload & Storage
-- 📚 Document Processing
-- 🧠 AI-powered Question Answering
-- 🔎 Semantic Search using Embeddings
-- 📦 Vector Database Integration
-- ⚡ Background Processing with RabbitMQ
-- 🚀 Async FastAPI Services
-- 🐳 Dockerized Deployment
-- 📊 Health Monitoring
-- 🔄 REST APIs
-- 📁 File Management
-- 📈 Scalable Microservices Architecture
-
----
-
-# 🏗️ Architecture
-
-```
-                    +----------------------+
-                    |     API Gateway      |
-                    +----------+-----------+
-                               |
-       ---------------------------------------------------------
-       |          |           |          |          |           |
-       |          |           |          |          |           |
-+-------------+ +-----------+ +----------+ +--------------+ +-------------+
-| Auth Service| |User Service| |File Service| |Embedding Svc| |Worker Svc |
-+-------------+ +-----------+ +----------+ +--------------+ +-------------+
-       |              |             |              |               |
-       -------------------------------------------------------------
-                               |
-                         PostgreSQL
-                               |
-                        RabbitMQ Queue
-                               |
-                            Redis Cache
-                               |
-                         Vector Database
-                               |
-                         AI / LLM Provider
-```
-
----
-
-# 🛠️ Tech Stack
-
-## Backend
-
-- Python 3.12+
-- FastAPI
-- SQLAlchemy (Async)
-- Alembic
-- Pydantic v2
-
-## Database
-
-- PostgreSQL
-
-## Authentication
-
-- JWT
-- OAuth2 Password Flow
-- Passlib (Password Hashing)
-
-## Messaging
-
-- RabbitMQ
-
-## Cache
-
-- Redis
-
-## AI Stack
-
-- OpenAI API
-- Embeddings
-- RAG
-- Vector Search
-
-## Infrastructure
-
-- Docker
-- Docker Compose
-
----
-
-# 📂 Project Structure
-
-```
-ai_knowledge_platform/
-
-│
-├── api_gateway/
-│
-├── auth_service/
-│
-├── user_service/
-│
-├── file_service/
-│
-├── embedding_service/
-│
-├── worker_service/
-│
-├── shared/
-│
-├── docker/
-│
-├── docs/
-│
-├── scripts/
-│
-├── docker-compose.yml
-│
-└── README.md
-```
-
----
-
-# ⚙️ Services
-
-## 🔐 Auth Service
-
-Responsible for
-
-- User Login
-- User Registration
-- JWT Token Generation
-- JWT Validation
-- Password Hashing
-
----
-
-## 👤 User Service
-
-Responsible for
-
-- User CRUD
-- Profile Management
-- Roles
-- Permissions
-
----
-
-## 📄 File Service
-
-Responsible for
-
-- Upload PDFs
-- Store Metadata
-- Extract Text
-- File Management
-
----
-
-## 🧠 Embedding Service
-
-Responsible for
-
-- Text Chunking
-- Embedding Generation
-- Vector Storage
+- API Gateway
+- JWT Authentication & Refresh Tokens
+- Role-Based Access Control (RBAC)
+- File Upload & Metadata Management
+- PDF, DOCX, PPTX, XLSX & TXT Parsing
+- Background Processing using RabbitMQ
+- Worker Service
+- Embedding Service (Sentence Transformers)
+- Search Service (ChromaDB)
 - Semantic Search
+- Async FastAPI Microservices
+- Dockerized Deployment
+- Shared Library
+- Structured Logging
+- Internal Service-to-Service APIs
 
 ---
 
-## ⚙️ Worker Service
+# 🏗 Architecture
 
-Responsible for
-
-- Background Tasks
-- RabbitMQ Consumers
-- Document Processing
-- AI Pipelines
-
----
-
-# 🚀 Getting Started
-
-## Clone Repository
-
-```bash
-git clone https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform.git
-
-cd ai_knowledge_platform
-```
-
----
-
-## Create Environment
-
-```bash
-python -m venv .venv
-```
-
-Activate
-
-### Windows
-
-```bash
-.venv\Scripts\activate
-```
-
-### Linux / macOS
-
-```bash
-source .venv/bin/activate
+```text
+Client
+   │
+API Gateway
+   │
+ ├──────────────┬─────────────┬────────────┬───────────────┐
+ │              │             │            │               │
+Auth        File Service  Search Svc  Embedding Svc   Worker
+                                   │
+                               RabbitMQ
+                                   │
+Download → Parse → Chunk → Embeddings → ChromaDB
+                                   │
+                             Semantic Search
 ```
 
 ---
 
-## Install Dependencies
+# 📂 Services
 
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Environment Variables
-
-Create a `.env` file.
-
-Example
-
-```env
-DATABASE_URL=
-JWT_SECRET_KEY=
-JWT_ALGORITHM=HS256
-
-REDIS_URL=
-
-RABBITMQ_URL=
-
-OPENAI_API_KEY=
-
-VECTOR_DB_URL=
-```
+| Service | Responsibility |
+|---------|----------------|
+| API Gateway | Request routing |
+| Auth Service | JWT, Users, RBAC |
+| File Service | Upload & metadata |
+| Embedding Service | Chunking & embeddings |
+| Search Service | ChromaDB semantic retrieval |
+| Worker Service | RabbitMQ consumers & background jobs |
+| Shared Library | Common utilities |
 
 ---
 
-# 🐳 Docker
+# 🔄 Document Processing Pipeline
 
-Build everything
-
-```bash
-docker compose up --build
-```
-
-Run in background
-
-```bash
-docker compose up -d
-```
-
-Stop
-
-```bash
-docker compose down
-```
-
----
-
-# 🗄️ Database Migration
-
-Generate migration
-
-```bash
-alembic revision --autogenerate -m "Initial migration"
-```
-
-Apply migration
-
-```bash
-alembic upgrade head
-```
-
----
-
-# 🧪 Running Tests
-
-```bash
-pytest
-```
-
-With Coverage
-
-```bash
-pytest --cov
-```
-
----
-
-# 📌 API Documentation
-
-Swagger
-
-```
-http://localhost:8000/docs
-```
-
-ReDoc
-
-```
-http://localhost:8000/redoc
-```
-
----
-
-# 🔄 AI Pipeline
-
-```
-Upload PDF
+```text
+Upload Document
       │
       ▼
-Extract Text
+Store Metadata
       │
       ▼
-Chunk Document
+Publish RabbitMQ Event
+      │
+      ▼
+Worker Downloads File
+      │
+      ▼
+Document Parser
+      │
+      ▼
+Chunk Text
       │
       ▼
 Generate Embeddings
       │
       ▼
-Store in Vector DB
+Store in ChromaDB
       │
       ▼
-User Query
-      │
-      ▼
-Similarity Search
-      │
-      ▼
-LLM Response
+Semantic Search
 ```
 
 ---
 
-# 📈 Roadmap
+# 🛠 Tech Stack
+
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- RabbitMQ
+- ChromaDB
+- Sentence Transformers
+- Docker
+- Pydantic v2
+- Alembic
+- httpx
+
+---
+
+# 🚀 Getting Started
+
+```bash
+git clone https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform.git
+cd ai_knowledge_platform
+docker compose up --build
+```
+
+---
+
+# 🔮 Roadmap
 
 - [x] Authentication
-- [x] User Service
-- [x] File Upload
-- [x] RabbitMQ
-- [x] Docker
-- [x] Async Architecture
-- [x] JWT
-- [ ] Embedding Pipeline
-- [ ] Vector Database
-- [ ] AI Chat
-- [ ] RAG Pipeline
-- [ ] Kubernetes Deployment
+- [x] File Service
+- [x] Worker Service
+- [x] Embedding Service
+- [x] Search Service
+- [x] RabbitMQ Pipeline
+- [x] ChromaDB Integration
+- [ ] LLM Answer Generation
+- [ ] Conversation Memory
+- [ ] Hybrid Search
+- [ ] Kubernetes
 - [ ] CI/CD
 - [ ] Monitoring
-- [ ] Prometheus & Grafana
 
 ---
 
 # 🤝 Contributing
 
-1. Fork the repository
-
-2. Create your feature branch
-
-```bash
-git checkout -b feature/new-feature
-```
-
-3. Commit your changes
-
-```bash
-git commit -m "feat: add new feature"
-```
-
-4. Push
-
-```bash
-git push origin feature/new-feature
-```
-
-5. Open a Pull Request
+Pull requests are welcome.
 
 ---
 
 # 📄 License
 
-This project is licensed under the MIT License.
+MIT License.
 
 ---
 
@@ -418,11 +162,8 @@ This project is licensed under the MIT License.
 
 **Malhar Bhatt**
 
-GitHub:
-https://github.com/MalharBhatt-whitelotus
+GitHub: https://github.com/MalharBhatt-whitelotus
 
 ---
 
-## ⭐ Support
-
-If you found this project helpful, consider giving it a ⭐ on GitHub.
+⭐ If you like this project, consider giving it a star.
