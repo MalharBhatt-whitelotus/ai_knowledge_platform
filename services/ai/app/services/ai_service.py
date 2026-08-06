@@ -57,7 +57,7 @@ class AIService:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found.")
             print(f">>> {prompt}")
             
-            answer = await self.ai_client.stream_generate(prompt=prompt)
+            answer = self.ai_client.stream_generate(prompt=prompt)
             if not answer:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found.")
             print(f">>> {answer}")
