@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from collections.abc import AsyncGenerator
 
 from services.ai.app.config.setting import settings
+from shared_lib.retry.decorators import http_retry
 
 class GenaiClient:
 
@@ -13,6 +14,7 @@ class GenaiClient:
         self.client = genai.Client(api_key=settings.GENAI_API_KEY)
 
 
+    @http_retry
     async def generate(self, prompt: str) -> str:
         try:
             async with httpx.AsyncClient(timeout=10.0):
@@ -41,6 +43,7 @@ class GenaiClient:
             )
 
 
+    @http_retry
     async def stream_generate(self, prompt: str) -> AsyncGenerator[str, None]:
             async with httpx.AsyncClient(timeout=10.0):
                 response_stream = await self.client.aio.models.generate_content_stream(

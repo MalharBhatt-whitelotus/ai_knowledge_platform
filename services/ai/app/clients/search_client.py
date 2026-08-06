@@ -1,6 +1,7 @@
 import httpx
 from fastapi import HTTPException, status
 
+from shared_lib.retry.decorators import http_retry
 
 class SearchClient:
 
@@ -9,6 +10,7 @@ class SearchClient:
         self.base_url = "http://search_service:8004"
 
 
+    @http_retry
     async def search(self, question: str, top_k: int):
         async with httpx.AsyncClient(timeout=10.0) as client:
             try:
