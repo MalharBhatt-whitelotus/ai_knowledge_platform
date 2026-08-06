@@ -1,12 +1,15 @@
 from fastapi import HTTPException, status
 
-from services.search.app.schemas.search_schemas import StoreEmbeddingRequest, StoreEmbeddingResponse, AskQuestionRequest, AskQuestionResponse
+from services.search.app.schemas.search_schemas import StoreEmbeddingRequest, StoreEmbeddingResponse, AskQuestionRequest, AskQuestionResponse, RetrivedChunks
 
 
 class SearchService:
+
+
     def __init__(self, repo, embedding_client) -> None:
         self.repo = repo
         self.embedding = embedding_client
+
 
     async def store_embeddings(self, request: StoreEmbeddingRequest) -> StoreEmbeddingResponse:
         try:
@@ -30,14 +33,41 @@ class SearchService:
                 detail=f"Failed to store embeddings: {exc}",
             )
 
+
     async def ask_service(self, request: AskQuestionRequest) -> AskQuestionResponse:
-        # Step 1
-        # Generate query embedding
+        try:
+            query_embedding = await self.embedding.generate_embeddings(request.question)
+            if not query_embedding:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No relevent data found.")
 
-        # Step 2
-        # Search ChromaDB
+            search_results = await self.repo.search(
+                embeddings=query_embedding,
+                top_k=request.top_k
+                )
+            if not search_results:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No relevant files found.")
 
-        # Step 3
-        # Convert response
+            result = [
+                RetrivedChunks(
+                    content=result.content,
+                    metadatas=result.metadatas,
+                    score=result.score,
+                    )
+                    for result in search_results
+                ]
+            if not result:
+                raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Unable to generate result.")
 
-        ...
+            return AskQuestionResponse(
+                question=request.question,
+                chunks=result
+            )
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                detail=str(exc)
+                )
