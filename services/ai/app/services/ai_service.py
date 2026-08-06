@@ -44,3 +44,28 @@ class AIService:
 
         except Exception as exc:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {str(exc)}")
+        
+    async def stream(self, request: AskAIRequest):
+        try:
+            search_results = await self.search_client.search(request.question, request.top_k)
+            if not search_results:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search Results not found.")
+            print(f">>> {search_results}")
+            
+            prompt =  self.prompt_builder.build(question=request.question, chunks=search_results.get("chunks"),)
+            if not prompt:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found.")
+            print(f">>> {prompt}")
+            
+            answer = await self.ai_client.stream_generate(prompt=prompt)
+            if not answer:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found.")
+            print(f">>> {answer}")
+            
+            return answer
+
+        except HTTPException:
+            raise
+
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {str(exc)}")
