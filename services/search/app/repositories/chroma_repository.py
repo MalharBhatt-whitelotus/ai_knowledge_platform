@@ -2,8 +2,10 @@ import uuid
 
 class ChromaRepository:
 
+
     def __init__(self, collection):
         self.collection = collection
+
 
     async def add(self, file_id: str, owner_id: str, chunks: list[str], embeddings: list[list[float]]) -> None:
         ids = [str(uuid.uuid4()) for _ in chunks]
@@ -22,6 +24,7 @@ class ChromaRepository:
             documents=chunks,
             metadatas=metadatas
         )
+
 
     async def search(self, embeddings: list[list[float]], top_k:int) -> list[dict]:
         results = self.collection.query(
