@@ -12,3 +12,7 @@ async def store_embeddings(request: StoreEmbeddingRequest):
     response = await service.store_embeddings(request)
 
     return response
+
+@search_router.post("/search/ask")
+async def ask_question():
+    ...
