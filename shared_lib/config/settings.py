@@ -23,6 +23,15 @@ class Settings(BaseSettings):
 
     OPEN_AI_KEY: str
 
+    RETRY_ATTEMPTS: int = 3
+    RETRY_MIN_WAIT: int = 1
+    RETRY_MAX_WAIT: int = 8
+
+    AUTH_URL: str
+    FILE_URL: str
+    EMBEDDING_URL: str
+    SEARCH_URL: str
+
     model_config = SettingsConfigDict(env_file=  ".env", extra="ignore")
 
 @lru_cache

@@ -2,6 +2,7 @@ import httpx
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
+from shared_lib.config.settings import settings
 from shared_lib.schemas.current_user import CurrentUserResponse
 
 security = HTTPBearer()
@@ -9,7 +10,7 @@ security = HTTPBearer()
 class AuthClient:
 
     def __init__(self, ):
-        self.base_url = "http://auth_service:8001"
+        self.base_url = settings.AUTH_URL
 
 
     async def __call__(self, authorization: HTTPAuthorizationCredentials = Depends(security),) -> CurrentUserResponse:

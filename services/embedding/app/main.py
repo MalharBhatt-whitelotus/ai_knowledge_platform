@@ -9,8 +9,10 @@ from shared_lib.core.factory import create_app
 async def startup(app: FastAPI):
     embedding_service.load_model()
 
+
 async def shutdown(app: FastAPI):
     embedding_service.model = None
+
 
 app = create_app(
         service_name = "Embedding Service",
