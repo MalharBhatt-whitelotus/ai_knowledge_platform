@@ -51,7 +51,7 @@ class FileUploadedHandler:
         )
 
         response =  await self.file_client.update_status(
-                    file.file_id,
+                    event.file_id,
                     DocStatus.ready_for_processing.value,
                 )
         
