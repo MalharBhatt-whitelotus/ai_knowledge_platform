@@ -2,7 +2,9 @@ import json
 from pydantic import ValidationError
 from aio_pika.abc import AbstractIncomingMessage
 
+from shared_lib.enums import DocStatus
 from shared_lib.logger.logger import get_logger
+from shared_lib.clients.file_client import FileClient
 
 from services.worker.app.messaging.events import FileUploadedEvent
 
@@ -19,6 +21,7 @@ class FileUploadedConsumer:
     def __init__(self, retry_publisher, handler):
         self._retry_publisher = retry_publisher
         self._handler = handler
+        self.file_client = FileClient()
 
 
     async def consume(self, message: AbstractIncomingMessage) -> None:
@@ -108,6 +111,9 @@ class FileUploadedConsumer:
                         "x-error": str(exc),
                         "x-error-type": type(exc).__name__,
                     },
+                )
+                await self.file_client.update_status(
+                    event.file_id, DocStatus.rejected.value,
                 )
 
             else:
