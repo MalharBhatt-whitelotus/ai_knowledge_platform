@@ -23,6 +23,11 @@ class RabbitMQPublisher:
                 body=event.model_dump_json().encode("utf-8"),
                 content_type="application/json"
                 )
+            logger.info(
+                "Publishing to exchange=%s routing_key=%s",
+                self.exchange.name,
+                self.ROUTING_KEY,
+            )
             await self.exchange.publish(message, routing_key=self.ROUTING_KEY,)
             logger.info(">>> message published")
         except Exception as e:
