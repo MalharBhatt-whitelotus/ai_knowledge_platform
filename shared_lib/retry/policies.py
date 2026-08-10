@@ -13,7 +13,7 @@ HTTP_RETRY_POLICY = {
     ),
     "stop": stop_after_attempt(settings.RETRY_ATTEMPTS),
     "wait": wait_exponential(
-        multiplier=1,
+        multiplier=2,
         min=settings.RETRY_MIN_WAIT,
         max=settings.RETRY_MAX_WAIT,
     ),
