@@ -1,15 +1,21 @@
+import json
 import hashlib
 
-class CacheKet:
+class CacheKey:
 
     PREFIX = "ai:answer"
 
     @classmethod
-    def generate(cls, question: str) -> str:
-        normalized_question = question.strip().lower()
+    def generate(cls, chunks: list[str], question: str) -> str:
+        payload = {
+            "question": question.strip().lower(),
+            "chunks": [chunk.content for chunk in chunks],
+        }
 
-        question_hash = hashlib.sha3_256(
-            normalized_question.encode("utf-8")
+        raw = json.dumps(payload, sort_keys=True)
+
+        digest = hashlib.sha3_256(
+            raw.encode("utf-8")
         ).hexdigest()
 
-        return f"{cls.PREFIX}:{question_hash}"
+        return f"{cls.PREFIX}:{digest}"
