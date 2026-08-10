@@ -11,6 +11,8 @@ from services.worker.app.config.worker_config import settings
 from services.worker.app.messaging.rabbitmq import RabbitMQConnection
 from services.worker.app.handlers.file_uploaded_handlers import FileUploadedHandler
 from services.worker.app.consumers.file_uploaded_consumer import FileUploadedConsumer
+from services.worker.app.messaging.rabbitmq_topology import RabbitmqTopology
+from services.worker.app.messaging.retry_publisher import RetryPublisher
 
 
 logger = get_logger(__name__)
@@ -23,26 +25,44 @@ async def startup(app: FastAPI):
 
     await rabbitmq.connect()
 
-    exchange = await rabbitmq.declare_exchange("files")
+    topology = RabbitmqTopology()
+    resources = await topology.setup(rabbitmq=rabbitmq,)
 
-    queue = await rabbitmq.declare_queue(
-        queue_name="file-processing",
-        routing_key="file.uploaded",
-    )
-    
+    retry_publisher = RetryPublisher(
+        retry_exchange=resources["retry_exchange"], 
+        dlq_exchange=resources["dlq_exchange"],
+        )
+
     handler = FileUploadedHandler(FileClient, EmbeddingClient, SearchClient)
-    consumer = FileUploadedConsumer(rabbitmq,handler)
+    consumer = FileUploadedConsumer(handler=handler, retry_publisher=retry_publisher,)
 
 
-    logger.info("Consumer is listening...")
-    await queue.consume(consumer.consume)
+    logger.info(
+        "MAIN QUEUE = %s",
+        resources["main_queue"].name,
+    )
+
+    logger.info(
+        "REGISTERING FILE UPLOADED CONSUMER..."
+        )
+
+    await resources["main_queue"].consume(consumer.consume)
+    logger.info(
+        "FILE UPLOADED CONSUMER REGISTERED"
+        )
+    
 
     app.state.rabbitmq = rabbitmq
     app.state.consumer = consumer
 
+    logger.info("Worker_service started successfully.")
+
 
 async def shutdown(app: FastAPI):
-    await app.state.rabbitmq.close()
+    logger.info("Shutting down Worker Service...")
+    if hasattr(app.state, "rabbitmq"):
+        await app.state.rabbitmq.close()
+    logger.info("Worker Service is shutdown completely.")
 
 
 app = create_app(

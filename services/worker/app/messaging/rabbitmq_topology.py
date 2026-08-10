@@ -1,8 +1,11 @@
 from aio_pika import ExchangeType
 
+from services.worker.app.messaging.rabbitmq import RabbitMQConnection
+
+
 class RabbitmqTopology:
 
-    MAIN_EXCHANGE = "file_events_exchange"
+    MAIN_EXCHANGE = "files"
     RETRY_EXCHANGE = "file_events_retry_exchange"
     DLQ_EXCHANGE = "file_event_dlq_exchange"
 
@@ -17,24 +20,45 @@ class RabbitmqTopology:
     RETRY_TTL = 5000
     MAX_RETRIES = 3
 
-    async def setup(self, channel):
+    async def setup(self, rabbitmq: RabbitMQConnection):
 
-        main_exchange = await channel.declare_exchange(self.MAIN_EXCHANGE, ExchangeType.DIRECT, durable=True)
-        retry_exchange = await channel.declare_exchange(self.RETRY_EXCHANGE, ExchangeType.DIRECT, durable=True)
-        dlq_exchange = await channel.declare_exchange(self.DLQ_EXCHANGE, ExchangeType.DIRECT, durable=True)
+        main_exchange = await rabbitmq.declare_exchange(
+            exchange_name=self.MAIN_EXCHANGE, 
+            exchange_type=ExchangeType.DIRECT,
+            )
+        
+        retry_exchange = await rabbitmq.declare_exchange(
+            exchange_name=self.RETRY_EXCHANGE, 
+            exchange_type=ExchangeType.DIRECT,
+            )
+        
+        dlq_exchange = await rabbitmq.declare_exchange(
+            exchange_name=self.DLQ_EXCHANGE, 
+            exchange_type=ExchangeType.DIRECT,
+            )
 
-        main_queue = await channel.declare_queue(self.MAIN_QUEUE, durable=True)
-        await main_queue.bind(main_exchange, routing_key=self.ROUTING_KEY)
+        main_queue = await rabbitmq.declare_queue(
+            queue_name=self.MAIN_QUEUE,
+            exchange=main_exchange, 
+            routing_key=self.ROUTING_KEY
+            )
 
-        retry_queue = await channel.declare_queue(self.RETRY_QUEUE, durable=True, arguments={
+        retry_queue = await rabbitmq.declare_queue(
+            queue_name=self.RETRY_QUEUE,
+            exchange=retry_exchange,
+            routing_key=self.RETRY_ROUTING_KEY, 
+            arguments={
             "x-message-ttl": self.RETRY_TTL,
             "x-dead-letter-exchange": self.MAIN_EXCHANGE,
             "x-dead-letter-routing-key": self.ROUTING_KEY,
-        })
-        await retry_queue.bind(retry_exchange, routing_key=self.RETRY_ROUTING_KEY)
+        },
+        )
 
-        dlq_queue = await channel.declare_queue(self.DLQ_QUEUE, durable=True)
-        await dlq_queue.binf(dlq_exchange, routing_key=self.DLQ_ROUTING_KEY)
+        dlq_queue = await rabbitmq.declare_queue(
+            queue_name=self.DLQ_QUEUE,
+            exchange=dlq_exchange,
+            routing_key=self.DLQ_ROUTING_KEY,
+            )
 
         return{
             "main_exchange": main_exchange,
