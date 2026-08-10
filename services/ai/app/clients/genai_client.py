@@ -1,6 +1,6 @@
 import httpx
 from google import genai
-from google.genai import errors, types
+from google.genai import errors
 from fastapi import HTTPException, status
 from collections.abc import AsyncGenerator
 

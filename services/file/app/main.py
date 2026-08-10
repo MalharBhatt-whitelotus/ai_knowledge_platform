@@ -8,6 +8,7 @@ from services.worker.app.config.worker_config import settings
 from services.worker.app.messaging.rabbitmq import RabbitMQConnection 
 from services.worker.app.messaging.publisher import RabbitMQPublisher
 
+
 async def startup(app: FastAPI):
     rabbitmq = RabbitMQConnection(settings.RABBITMQ_URL)
     await rabbitmq.connect()
@@ -16,8 +17,10 @@ async def startup(app: FastAPI):
     app.state.rabbitmq = rabbitmq
     app.state.publisher = RabbitMQPublisher(exchange)
 
+
 async def shutdown(app: FastAPI):
       await app.state.rabbitmq.close()
+
 
 app = create_app(
         service_name = "File Service",

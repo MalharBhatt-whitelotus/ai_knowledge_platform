@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import UploadFile, HTTPException, status
 
 from shared_lib.logger.logger import get_logger
+from shared_lib.enums import DocStatus
 
 from services.worker.app.messaging.events import FileUploadedEvent
 from services.worker.app.messaging.publisher import RabbitMQPublisher
 
-from services.file.app.enums import DocStatus, DocType
 from services.file.app.parser.parser_factory import ParserFactory
 from services.file.app.storage.storage_provider import StorageProvider
 from services.file.app.repositories.file_repository import FileRepository as repo
