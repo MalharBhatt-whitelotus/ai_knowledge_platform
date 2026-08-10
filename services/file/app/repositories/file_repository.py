@@ -2,7 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
-from services.file.app.enums import  DocType, DocStatus
+from shared_lib.enums import  DocType, DocStatus
+
 from services.file.app.models.file_models import File
 from services.file.app.schemas.file_schemas import FileResponse, FileUploadResponse
 

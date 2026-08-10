@@ -1,7 +1,11 @@
 from fastapi import status, HTTPException
+from fastapi.responses import StreamingResponse
 
+from shared_lib.clients.search_client import SearchClient
+
+from services.ai.app.services.cache_key import CacheKey
 from services.ai.app.clients.genai_client import GenaiClient
-from services.ai.app.clients.search_client import SearchClient
+from services.ai.app.services.cache_service import CacheService
 from services.ai.app.services.prompt_builder import PromptBuilder
 from services.ai.app.schemas.ai_schemas import AskAIRequest, AskAIResponse
 
@@ -14,10 +18,12 @@ class AIService:
             genai_client: GenaiClient,
             search_client: SearchClient,
             prompt_builder: PromptBuilder,
+            cache_service: CacheService,
             ) -> None:
         self.ai_client = genai_client
         self.search_client = search_client
         self.prompt_builder = prompt_builder
+        self.cache_service = cache_service
 
 
     async def ask(self, request: AskAIRequest):
@@ -26,6 +32,13 @@ class AIService:
             if not search_results:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search Results not found.")
             print(f">>> {search_results}")
+
+            cache_key = CacheKey.generate(chunks=search_results.get("chunks"), question=request.question)
+
+            cache_answer = await self.cache_service.get(key=cache_key)
+            if cache_answer is not None:
+                print(">>> Cache answer hit...")
+                return AskAIResponse(question=request.question, answer=cache_answer)
             
             prompt =  self.prompt_builder.build(question=request.question, chunks=search_results.get("chunks"),)
             if not prompt:
@@ -36,6 +49,9 @@ class AIService:
             if not answer:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found.")
             print(f">>> {answer}")
+
+            await self.cache_service.set(key=cache_key, value=answer)
+            print(">>> Answer is cached...")
             
             return AskAIResponse(question=request.question, answer=answer,)
 
@@ -51,6 +67,12 @@ class AIService:
             if not search_results:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Search Results not found.")
             print(f">>> {search_results}")
+
+            cache_key = CacheKey.generate(chunks=search_results.get("chunks"), question=request.question)
+            cache_answer = await self.cache_service.get(key=cache_key)
+            if cache_answer is not None:
+                print(">>> Cache answer hit...")
+                return StreamingResponse(content=cache_answer, status_code=200)
             
             prompt =  self.prompt_builder.build(question=request.question, chunks=search_results.get("chunks"),)
             if not prompt:
@@ -61,7 +83,10 @@ class AIService:
             if not answer:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found.")
             print(f">>> {answer}")
-            
+
+            await self.cache_service.set(key=cache_key, value=answer)
+            print(">>> Answer is cached...")
+
             return answer
 
         except HTTPException:

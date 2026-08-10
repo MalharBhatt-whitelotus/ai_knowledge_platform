@@ -14,5 +14,6 @@ class DocType(enum.Enum):
 
 class DocStatus(enum.Enum):
     in_queue = "in_queue"
-    pending = "pending"
+    ready_for_processing = "ready_for_processing"
     completed = "completed"
+    rejected = "rejected"

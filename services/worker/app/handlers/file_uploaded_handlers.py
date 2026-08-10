@@ -1,11 +1,13 @@
-from shared_lib.logger.logger import get_logger
 from shared_lib.enums import DocStatus
+from shared_lib.logger.logger import get_logger
+from shared_lib.clients.file_client import FileClient
+from shared_lib.clients.search_client import SearchClient
+from shared_lib.clients.embedding_client import EmbeddingClient
 
-from services.worker.app.clients.file_client import FileClient
 from services.worker.app.messaging.events import FileUploadedEvent
-from services.worker.app.clients.search_client import SearchClient
-from services.worker.app.clients.embedding_client import EmbeddingClient
 from services.worker.app.chunking.chunker_factory import ChunkerFactory
+
+
 logger = get_logger(__name__)
 
 
@@ -23,6 +25,7 @@ class FileUploadedHandler:
         - Update file status
     """
 
+
     def __init__(
         self,
         file_client: FileClient,
@@ -32,6 +35,7 @@ class FileUploadedHandler:
         self.file_client = file_client()
         self.embedding_client = embedding_client()
         self.search_client = search_client()
+
 
     async def handle(
         self,
@@ -45,6 +49,13 @@ class FileUploadedHandler:
             ">>> Processing file %s",
             event.file_id,
         )
+
+        response =  await self.file_client.update_status(
+                    event.file_id,
+                    DocStatus.ready_for_processing.value,
+                )
+        
+        logger.info(">>> File status updated. %s", response)
 
         # ----------------------------------
         # Step 1

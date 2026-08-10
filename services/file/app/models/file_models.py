@@ -1,6 +1,7 @@
-from sqlalchemy import Column, String, Integer, DateTime, Enum, Boolean
+from sqlalchemy import Column, String, Integer, DateTime, Enum
 
-from services.file.app.enums import DocType, DocStatus
+from shared_lib.enums import DocType, DocStatus
+
 from services.file.app.database.file_database import Base
 
 class File(Base):
