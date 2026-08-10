@@ -50,6 +50,13 @@ class FileUploadedHandler:
             event.file_id,
         )
 
+        response =  await self.file_client.update_status(
+                    file.file_id,
+                    DocStatus.ready_for_processing.value,
+                )
+        
+        logger.info(">>> File status updated. %s", response)
+
         # ----------------------------------
         # Step 1
         # Fetch file metadata

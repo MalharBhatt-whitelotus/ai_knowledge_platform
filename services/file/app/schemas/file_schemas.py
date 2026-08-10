@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-from services.file.app.enums import DocType, DocStatus
+from shared_lib.enums import  DocStatus, DocType
 
 class FileRequest(BaseModel):
     title: str
