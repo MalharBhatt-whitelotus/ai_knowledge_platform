@@ -38,7 +38,6 @@ class FileUploadedHandler:
         self.search_client = search_client()
 
 
-    @http_retry
     async def handle(
         self,
         event: FileUploadedEvent,
