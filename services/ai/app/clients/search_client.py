@@ -1,7 +1,7 @@
 import httpx
-from fastapi import HTTPException, status
 
 from shared_lib.retry.decorators import http_retry
+
 
 class SearchClient:
 
@@ -13,7 +13,6 @@ class SearchClient:
     @http_retry
     async def search(self, question: str, top_k: int):
         async with httpx.AsyncClient(timeout=10.0) as client:
-            try:
                 response = await client.post(
                     f"{self.base_url}/ask",
                     json={
@@ -22,13 +21,6 @@ class SearchClient:
                     }
                     )
 
-                if response.status_code != status.HTTP_200_OK:
-                    raise HTTPException(status_code=response.status_code, detail=response.json().get("detail"))
+                response.raise_for_status()
 
                 return response.json()
-
-            except HTTPException:
-                raise
-
-            except httpx.RequestError as r_exc:
-                raise HTTPException(status_code=status.HTTP_200_OK, detail=f"Search service unavailable: {str(r_exc)}")
