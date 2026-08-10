@@ -1,13 +1,13 @@
 import httpx
 
+from shared_lib.config.settings import settings
 from shared_lib.retry.decorators import http_retry
-
 
 class EmbeddingClient:
 
 
     def __init__(self):
-        self.base_url = "http://embedding_service:8003"
+        self.base_url = settings.EMBEDDING_URL
 
 
     @http_retry
@@ -17,6 +17,13 @@ class EmbeddingClient:
                     f"{self.base_url}/internal/generate_embeddings",
                     json={"chunks":chunks}
                     )
+
+                if response.status_code >= 400:
+                    print(
+                        "Embedding Service Error:",
+                        response.status_code,
+                        response.text,
+                        )
 
                 response.raise_for_status()
                 return response.json()

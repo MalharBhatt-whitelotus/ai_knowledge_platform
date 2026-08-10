@@ -1,6 +1,7 @@
 import httpx
 
 from shared_lib.retry.decorators import http_retry
+from shared_lib.config.settings import settings
 from services.worker.app.schemas.file_client_schemas import FileResponse
 
 
@@ -8,7 +9,7 @@ class FileClient:
 
 
     def __init__(self):
-        self.Base_url = "http://file_service:8002"
+        self.Base_url = settings.FILE_URL
 
 
     @http_retry

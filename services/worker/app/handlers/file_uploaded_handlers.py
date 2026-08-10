@@ -1,11 +1,10 @@
 from shared_lib.enums import DocStatus
 from shared_lib.logger.logger import get_logger
-from shared_lib.retry.decorators import http_retry
+from shared_lib.clients.file_client import FileClient
+from shared_lib.clients.search_client import SearchClient
+from shared_lib.clients.embedding_client import EmbeddingClient
 
-from services.worker.app.clients.file_client import FileClient
 from services.worker.app.messaging.events import FileUploadedEvent
-from services.worker.app.clients.search_client import SearchClient
-from services.worker.app.clients.embedding_client import EmbeddingClient
 from services.worker.app.chunking.chunker_factory import ChunkerFactory
 
 
