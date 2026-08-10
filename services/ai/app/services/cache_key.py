@@ -9,7 +9,7 @@ class CacheKey:
     def generate(cls, chunks: list[str], question: str) -> str:
         payload = {
             "question": question.strip().lower(),
-            "chunks": [chunk.content for chunk in chunks],
+            "chunks": [chunk.get("content") for chunk in chunks],
         }
 
         raw = json.dumps(payload, sort_keys=True)
