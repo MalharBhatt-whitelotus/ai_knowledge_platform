@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str
     REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_PASSWORD: str | None = None
+    REDIS_CACHE_TTL: int
 
     RABBITMQ_HOST: str
     RABBITMQ_PORT: int
