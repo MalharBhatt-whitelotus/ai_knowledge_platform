@@ -47,7 +47,7 @@ def create_app(
         lifespan=lifespan
         )
 
-    register_middleware(app, logger, rate_limiter=rate_limiter)
+    register_middleware(app, logger, service_name=service_name, rate_limiter=rate_limiter)
     app.add_exception_handler(AppException, app_exception_handler,)
 
     app.add_middleware(
