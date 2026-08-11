@@ -10,6 +10,7 @@ from shared_lib.config.settings import settings
 from shared_lib.exceptions.exceptions import AppException
 from shared_lib.core.middleware import register_middleware
 from shared_lib.core.exception_handler import app_exception_handler
+from shared_lib.core.rate_limiter import RateLimiter
 
 StartupCallback = Callable[[FastAPI], Awaitable[None]]
 ShutdownCallback = Callable[[FastAPI], Awaitable[None]]
@@ -20,6 +21,7 @@ def create_app(
         router: APIRouter,
         startup: StartupCallback | None = None,
         shutdown: ShutdownCallback | None = None,
+        rate_limiter: RateLimiter = None,
         ) -> FastAPI:
     """
     Creata and configure a FastAPI Application.
@@ -45,7 +47,7 @@ def create_app(
         lifespan=lifespan
         )
 
-    register_middleware(app, logger)
+    register_middleware(app, logger, rate_limiter=rate_limiter)
     app.add_exception_handler(AppException, app_exception_handler,)
 
     app.add_middleware(
