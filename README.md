@@ -30,7 +30,7 @@ Upload documents → parse & chunk → embed → index → semantically search �
 [![Last Commit](https://badgen.net/github/last-commit/MalharBhatt-whitelotus/ai_knowledge_platform/main)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/commits/main)
 [![Contributors](https://badgen.net/github/contributors/MalharBhatt-whitelotus/ai_knowledge_platform)](https://github.com/MalharBhatt-whitelotus/ai_knowledge_platform/graphs/contributors)
 
-*Badges are served live by [Badgen](https://badgen.net/) from the GitHub API, so the counts above update automatically as the repository changes — no manual editing needed.*
+*Badges are served live by [Badgen](https://badgen.net/) from the GitHub API, so the counts above update automatically as the repository changes — some manual editing needed.*
 
 </div>
 
