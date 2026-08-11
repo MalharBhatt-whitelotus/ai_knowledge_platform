@@ -28,6 +28,12 @@ class RedisClient:
     ):
         await self.client.set(key, value, ex=ttl)
 
+    async def increment(self, key: str) -> int:
+        return await self.client.incr(key)
+
+    async def expire(self, key: str, ttl: int):
+        await self.client.expire(key, ttl)
+
     async def delete(self, key: str):
         await self.client.delete(key)
 
