@@ -2,7 +2,9 @@ import time
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-def register_middleware(app, logger, rate_limiter=None):
+from shared_lib.observability.metrics import REQUEST_COUNT, REQUEST_DURATION
+
+def register_middleware(app, logger, service_name: str, rate_limiter=None):
 
     @app.middleware("http")
     async def log_requests(request:Request, call_next):
@@ -20,6 +22,20 @@ def register_middleware(app, logger, rate_limiter=None):
                 duration = (
                     time.perf_counter() - start
                     ) * 1000
+
+                REQUEST_COUNT.labels(
+                    service=service_name,
+                    method=request.method,
+                    path=request.url.path,
+                    status=str(response.status_code),
+                ).inc()
+
+                REQUEST_DURATION.labels(
+                    service=service_name,
+                    method=request.method,
+                    path=request.url.path,
+                ).observe(duration)
+
                 logger.warning(
                     "%s %s | %s | %.2f ms",
                     request.method,
@@ -33,6 +49,19 @@ def register_middleware(app, logger, rate_limiter=None):
         response = await call_next(request)
         duration = (time.perf_counter() - start) * 1000
 
+        REQUEST_COUNT.labels(
+            service=service_name,
+            method=request.method,
+            path=request.url.path,
+            status=str(response.status_code),
+        ).inc()
+
+        REQUEST_DURATION.labels(
+            service=service_name,
+            method=request.method,
+            path=request.url.path,
+        ).observe(duration)
+        
         logger.info(
             "%s %s | %s | %.2f ms",
             request.method,
