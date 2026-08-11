@@ -10,6 +10,7 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
+    worker_enable_remote_control=False,
     worker_cancel_long_running_tasks_on_connection_loss=True,
 
     imports= [
