@@ -9,10 +9,10 @@ from shared_lib.clients.embedding_client import EmbeddingClient
 from services.worker.app.api.router import api_router
 from services.worker.app.config.worker_config import settings
 from services.worker.app.messaging.rabbitmq import RabbitMQConnection
+from services.worker.app.messaging.retry_publisher import RetryPublisher
+from services.worker.app.messaging.rabbitmq_topology import RabbitmqTopology
 from services.worker.app.handlers.file_uploaded_handlers import FileUploadedHandler
 from services.worker.app.consumers.file_uploaded_consumer import FileUploadedConsumer
-from services.worker.app.messaging.rabbitmq_topology import RabbitmqTopology
-from services.worker.app.messaging.retry_publisher import RetryPublisher
 
 
 logger = get_logger(__name__)
