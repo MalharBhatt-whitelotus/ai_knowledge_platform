@@ -36,7 +36,7 @@ class SearchService:
 
     async def ask_question(self, request: AskQuestionRequest) -> AskQuestionResponse:
         try:
-            query_embedding = await self.embedding.generate_embeddings(list(request.question))
+            query_embedding = await self.embedding.generate_embeddings([request.question])
             if not query_embedding:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No relevent data found.")
 
