@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  - job_name: "gateway"
+    static_configs:
+      - targets:
+          - "gateway_service:8000"
+
+  - job_name: "auth"
+    static_configs:
+      - targets:
+          - "auth_service:8001"
+
+  - job_name: "file"
+    static_configs:
+      - targets:
+          - "file_service:8002"
+
+  - job_name: "embedding"
+    static_configs:
+      - targets:
+          - "embedding_service:8003"
+
+  - job_name: "search"
+    static_configs:
+      - targets:
+          - "search_service:8004"
+
+  - job_name: "ai"
+    static_configs:
+      - targets:
+          - "ai_service:8005"
+
+  - job_name: "worker"
+    static_configs:
+      - targets:
+          - "celery_worker:9000"
