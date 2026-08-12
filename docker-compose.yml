@@ -149,6 +149,7 @@ services:
       dockerfile: services/file/Dockerfile
 
     container_name: file_service
+    restart: unless-stopped
 
     env_file:
       - services/file/.env
@@ -165,6 +166,8 @@ services:
         condition: service_healthy
       ai-base:
         condition: service_completed_successfully
+      worker_service:
+        condition: service_started
 
     volumes:
       - .:/app
