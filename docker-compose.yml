@@ -311,6 +311,10 @@ services:
       --without-gossip
     env_file:
       - .env
+    
+    ports:
+      - "9000:9000"
+
     depends_on:
       rabbitmq:
         condition: service_healthy
