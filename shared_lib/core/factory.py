@@ -7,12 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from shared_lib.logger.logger import get_logger
 from shared_lib.config.settings import settings
+from shared_lib.core.rate_limiter import RateLimiter
 from shared_lib.exceptions.exceptions import AppException
 from shared_lib.core.middleware import register_middleware
 from shared_lib.core.exception_handler import app_exception_handler
-from shared_lib.core.rate_limiter import RateLimiter
-from shared_lib.observability.routes import router as metrics_router
 from shared_lib.observability.health import router as health_router
+from shared_lib.observability.routes import router as metrics_router
 
 StartupCallback = Callable[[FastAPI], Awaitable[None]]
 ShutdownCallback = Callable[[FastAPI], Awaitable[None]]
