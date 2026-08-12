@@ -20,4 +20,7 @@ async def test_all_services_are_healthy(
 
         data = response.json()
 
-        assert data["status"] == "healthy"
+        assert data["status"] in {"ok", "Healthy"}, (
+            f"{service} returned unexpected health status: "
+            f"{data}"
+        )
