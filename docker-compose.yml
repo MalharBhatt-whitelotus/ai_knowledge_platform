@@ -92,6 +92,7 @@ services:
     ports:
       - "8000:8000"
 
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -104,6 +105,13 @@ services:
 
     volumes:
       - .:/app
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8000/health'); assert 200 <= r.status < 300"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # --------------------------------------------------------------------------
   # Auth
@@ -136,6 +144,13 @@ services:
 
     volumes:
       - .:/app
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8001/health'); assert 200 <= r.status < 300"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # --------------------------------------------------------------------------
   # File
@@ -172,6 +187,13 @@ services:
     volumes:
       - .:/app
 
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8002/health'); assert 200 <= r.status < 300"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # --------------------------------------------------------------------------
   # Embedding
   # --------------------------------------------------------------------------
@@ -203,6 +225,13 @@ services:
 
     volumes:
       - .:/app
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8003/health'); assert 200 <= r.status < 300"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # --------------------------------------------------------------------------
   # Search
@@ -236,6 +265,13 @@ services:
     volumes:
       - .:/app
 
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8004/health'); assert 200 <= r.status < 300"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # --------------------------------------------------------------------------
   # AI
   # --------------------------------------------------------------------------
@@ -267,6 +303,13 @@ services:
 
     volumes:
       - .:/app
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8005/health'); assert 200 <= r.status < 300"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # --------------------------------------------------------------------------
   # Worker
@@ -300,6 +343,13 @@ services:
     volumes:
       - .:/app
   
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8006/health'); assert 200 <= r.status < 300"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # --------------------------------------------------------------------------
   # Celery Worker
   # --------------------------------------------------------------------------
