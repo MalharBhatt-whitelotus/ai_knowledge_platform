@@ -4,13 +4,19 @@ from fastapi.responses import JSONResponse
 
 from shared_lib.observability.metrics import REQUEST_COUNT, REQUEST_DURATION
 
+OBSERVABILITY_PATHS = {
+            "/metrics",
+            "/health",
+            "/ready",
+            }
+
 def register_middleware(app, logger, service_name: str, rate_limiter=None):
 
     @app.middleware("http")
     async def log_requests(request:Request, call_next):
         start = time.perf_counter()
 
-        if rate_limiter:
+        if rate_limiter and request.url.path not in OBSERVABILITY_PATHS:
             allowed = await rate_limiter.is_allowed(request)
             if not allowed:
                 response = JSONResponse(
@@ -22,7 +28,7 @@ def register_middleware(app, logger, service_name: str, rate_limiter=None):
                 duration = (
                     time.perf_counter() - start
                     ) * 1000
-
+                
                 REQUEST_COUNT.labels(
                     service=service_name,
                     method=request.method,
@@ -49,18 +55,20 @@ def register_middleware(app, logger, service_name: str, rate_limiter=None):
         response = await call_next(request)
         duration = (time.perf_counter() - start) * 1000
 
-        REQUEST_COUNT.labels(
-            service=service_name,
-            method=request.method,
-            path=request.url.path,
-            status=str(response.status_code),
-        ).inc()
+        if request.url.path not in OBSERVABILITY_PATHS:
+            
+            REQUEST_COUNT.labels(
+                service=service_name,
+                method=request.method,
+                path=request.url.path,
+                status=str(response.status_code),
+            ).inc()
 
-        REQUEST_DURATION.labels(
-            service=service_name,
-            method=request.method,
-            path=request.url.path,
-        ).observe(duration)
+            REQUEST_DURATION.labels(
+                service=service_name,
+                method=request.method,
+                path=request.url.path,
+            ).observe(duration)
         
         logger.info(
             "%s %s | %s | %.2f ms",
