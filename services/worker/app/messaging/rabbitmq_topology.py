@@ -20,6 +20,8 @@ class RabbitmqTopology:
     RETRY_TTL = 5000
     MAX_RETRIES = 3
 
+    DLQ_TTL = 10 * 60 * 1000  # 10 minutes
+
     async def setup(self, rabbitmq: RabbitMQConnection):
 
         main_exchange = await rabbitmq.declare_exchange(
@@ -58,6 +60,9 @@ class RabbitmqTopology:
             queue_name=self.DLQ_QUEUE,
             exchange=dlq_exchange,
             routing_key=self.DLQ_ROUTING_KEY,
+            arguments={
+                "x-message-ttl": self.DLQ_TTL,
+            }
             )
 
         return{
