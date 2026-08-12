@@ -30,3 +30,6 @@ chromadb/
 *.docx
 *.pptx
 *.xlsx
+
+*-schedule*
+2026*

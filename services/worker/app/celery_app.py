@@ -2,6 +2,7 @@ from celery import Celery
 from celery.schedules import crontab
 
 from shared_lib.config.settings import settings
+from services.worker.app.metrics_server import start_metrics_server
 
 celery_app = Celery("worker_service", broker=settings.CELERY_BROKER_URL,backend=settings.CELERY_RESULT_BACKEND,)
 celery_app.conf.update(
@@ -23,3 +24,5 @@ celery_app.conf.beat_schedule = {
         "schedule": 600.0,
     },
 }
+
+start_metrics_server(9000)
