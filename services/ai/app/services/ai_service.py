@@ -72,7 +72,9 @@ class AIService:
             cache_answer = await self.cache_service.get(key=cache_key)
             if cache_answer is not None:
                 print(">>> Cache answer hit...")
-                return StreamingResponse(content=cache_answer, status_code=200)
+                async def cached_generator():
+                    yield cache_answer
+                return cached_generator()
             
             prompt =  self.prompt_builder.build(question=request.question, chunks=search_results.get("chunks"),)
             if not prompt:
@@ -84,10 +86,18 @@ class AIService:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found.")
             print(f">>> {answer}")
 
-            await self.cache_service.set(key=cache_key, value=answer)
-            print(">>> Answer is cached...")
-
-            return answer
+            async def generate_and_cache():
+                chunks = []
+                async for chunk in answer:
+                    chunks.append(chunk)
+                    yield chunk
+                complete_answer = "".join(chunks)
+                await self.cache_service.set(
+                    key=cache_key,
+                    value=complete_answer,
+                )
+                print(">>> Answer is cached...")
+            return generate_and_cache()
 
         except HTTPException:
             raise
