@@ -7,3 +7,8 @@ class AskAIRequest(BaseModel):
 class AskAIResponse(BaseModel):
     question: str
     answer: str
+
+class RetrivedChunks(BaseModel):
+    content: str
+    score: float
+    metadatas: dict

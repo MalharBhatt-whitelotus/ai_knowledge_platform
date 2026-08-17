@@ -8,22 +8,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install build tools only if some dependencies need compilation
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        gcc \
-        g++ && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install uv
 RUN pip install --no-cache-dir uv
 
-# Copy dependency files only
 COPY pyproject.toml ./
-# COPY uv.lock ./
+COPY uv.lock* ./
+COPY shared_lib ./shared_lib
 
-# Install dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system .
-
-# Source code is intentionally NOT copied here.

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
-    POSTGRES_PORT: int
+    SHARED_POSTGRES_PORT: int
 
     REDIS_HOST: str
     REDIS_PORT: int
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     REDIS_CACHE_TTL: int
 
     RABBITMQ_HOST: str
-    RABBITMQ_PORT: int
+    SHARED_RABBITMQ_PORT: int
     RABBITMQ_DEFAULT_USER: str
     RABBITMQ_DEFAULT_PASSWORD: str
 
@@ -40,6 +40,14 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=  ".env", extra="ignore")
 
+    @property
+    def RABBITMQ_URL(self):
+        return (
+            f"amqp://"
+            f"{self.RABBITMQ_DEFAULT_USER}:{self.RABBITMQ_DEFAULT_PASSWORD}"
+                f"@{self.RABBITMQ_HOST}:{self.SHARED_RABBITMQ_PORT}/"
+            )
+    
 @lru_cache
 def get_settings() -> Settings:
     return Settings()

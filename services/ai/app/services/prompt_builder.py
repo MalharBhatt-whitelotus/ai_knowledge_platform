@@ -1,5 +1,5 @@
 from services.ai.app.services.prompt_template import SYSTEM_PROMPT
-from services.search.app.schemas.search_schemas import RetrivedChunks
+from services.ai.app.schemas.ai_schemas import RetrivedChunks
 
 class PromptBuilder:
 
