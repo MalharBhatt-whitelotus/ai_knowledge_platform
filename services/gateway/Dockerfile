@@ -1,8 +1,8 @@
-FROM ai-base
+FROM ai-base:latest
 
 WORKDIR /app
 
-COPY . .
+COPY services/gateway /app/services/gateway
 
 EXPOSE 8000
 

@@ -9,8 +9,8 @@ class FileSettings(BaseSettings):
     SERVICE_NAME: str
 
     POSTGRES_HOST: str
-    POSTGRES_PORT: str
-    POSTGRES_DB: str
+    SHARED_POSTGRES_PORT: str
+    FILE_POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
 
@@ -19,8 +19,8 @@ class FileSettings(BaseSettings):
         return (
             f"postgresql+asyncpg://"
             f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}"
-            f"/{self.POSTGRES_DB}"
+            f"@{self.POSTGRES_HOST}:{self.SHARED_POSTGRES_PORT}"
+            f"/{self.FILE_POSTGRES_DB}"
             )
 
     model_config = SettingsConfigDict(env_file=BASE_DIR/".env", extra="ignore")

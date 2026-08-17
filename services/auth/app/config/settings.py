@@ -8,7 +8,7 @@ class AuthSettings(BaseSettings):
     SERVICE_NAME: str
 
     POSTGRES_HOST: str
-    POSTGRES_PORT: int
+    SHARED_POSTGRES_PORT: int
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -23,7 +23,7 @@ class AuthSettings(BaseSettings):
         return (
             f"postgresql+asyncpg://"
             f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}"
+            f"@{self.POSTGRES_HOST}:{self.SHARED_POSTGRES_PORT}"
             f"/{self.POSTGRES_DB}"
         )
 

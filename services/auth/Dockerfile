@@ -1,8 +1,8 @@
-FROM ai-base
+FROM ai-base:latest
 
 WORKDIR /app
 
-COPY . .
+COPY services/auth /app/services/auth
 
 EXPOSE 8001
 

@@ -3,10 +3,10 @@ from fastapi import FastAPI
 from shared_lib.core.factory import create_app
 from shared_lib.core.rate_limiter import RateLimiter
 from shared_lib.cache.redis_client import RedisClient
+from shared_lib.config.settings import settings
 
-from services.worker.app.config.worker_config import settings
-from services.worker.app.messaging.rabbitmq import RabbitMQConnection 
-from services.worker.app.messaging.publisher import RabbitMQPublisher
+from shared_lib.messaging.rabbitmq import RabbitMQConnection 
+from shared_lib.messaging.publisher import RabbitMQPublisher
 
 from services.file.app.api.router import api_router
 

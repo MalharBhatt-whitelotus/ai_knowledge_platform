@@ -1,11 +1,10 @@
 services:
-  # --------------------------------------------------------------------------
-  # Infrastructure
-  # --------------------------------------------------------------------------
 
   postgres:
     image: postgres:17
+
     container_name: ai_knowledge_platform_server
+
     restart: unless-stopped
 
     env_file:
@@ -23,18 +22,24 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
     healthcheck:
-      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+
   redis:
     image: redis/redis-stack:latest
     container_name: ai_redis
     restart: unless-stopped
 
     ports:
-      - "6379:6379"
-      - "8007:8001"
+      - "8007:6379"
+      - "8009:8001"
 
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -42,9 +47,12 @@ services:
       timeout: 5s
       retries: 5
 
+
   rabbitmq:
     image: rabbitmq:4-management
+
     container_name: ai_rabbitmq
+
     restart: unless-stopped
 
     env_file:
@@ -59,39 +67,42 @@ services:
       - "15673:15672"
 
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test:
+        [
+          "CMD",
+          "rabbitmq-diagnostics",
+          "-q",
+          "ping"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # --------------------------------------------------------------------------
-  # Base Image (Build Only)
-  # --------------------------------------------------------------------------
 
   ai-base:
-    image: ai-base
+    image: ai-base:latest
+
     build:
       context: .
       dockerfile: Dockerfile.base
 
-  # --------------------------------------------------------------------------
-  # Gateway
-  # --------------------------------------------------------------------------
 
   gateway_service:
-    image: gateway_service
+    image: gateway_service:latest
+
     build:
       context: .
       dockerfile: services/gateway/Dockerfile
 
     container_name: gateway_service
 
+    restart: unless-stopped
+
     env_file:
       - .env
 
     ports:
       - "8000:8000"
-
 
     depends_on:
       postgres:
@@ -100,25 +111,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ai-base:
-        condition: service_completed_successfully
 
-    volumes:
-      - .:/app
-
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8000/health'); assert 200 <= r.status < 300"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # --------------------------------------------------------------------------
-  # Auth
-  # --------------------------------------------------------------------------
 
   auth_service:
-    image: auth_service
+    image: auth_service:latest
 
     build:
       context: .
@@ -126,8 +122,10 @@ services:
 
     container_name: auth_service
 
+    restart: unless-stopped
+
     env_file:
-      - services/auth/.env
+      - .env
 
     ports:
       - "8001:8001"
@@ -139,36 +137,22 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ai-base:
-        condition: service_completed_successfully
 
-    volumes:
-      - .:/app
-
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8001/health'); assert 200 <= r.status < 300"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # --------------------------------------------------------------------------
-  # File
-  # --------------------------------------------------------------------------
 
   file_service:
-    image: file_service
+    image: file_service:latest
 
     build:
       context: .
       dockerfile: services/file/Dockerfile
 
     container_name: file_service
+
     restart: unless-stopped
 
     env_file:
-      - services/file/.env
-
+      - .env
+    
     ports:
       - "8002:8002"
 
@@ -179,33 +163,20 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ai-base:
-        condition: service_completed_successfully
       worker_service:
         condition: service_started
 
-    volumes:
-      - .:/app
-
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8002/health'); assert 200 <= r.status < 300"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # --------------------------------------------------------------------------
-  # Embedding
-  # --------------------------------------------------------------------------
 
   embedding_service:
-    image: embedding_service
+    image: embedding_service:latest
 
     build:
       context: .
       dockerfile: services/embedding/Dockerfile
 
     container_name: embedding_service
+
+    restart: unless-stopped
 
     env_file:
       - .env
@@ -220,31 +191,18 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ai-base:
-        condition: service_completed_successfully
 
-    volumes:
-      - .:/app
-
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8003/health'); assert 200 <= r.status < 300"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # --------------------------------------------------------------------------
-  # Search
-  # --------------------------------------------------------------------------
 
   search_service:
-    image: search_service
+    image: search_service:latest
 
     build:
       context: .
       dockerfile: services/search/Dockerfile
 
     container_name: search_service
+
+    restart: unless-stopped
 
     env_file:
       - .env
@@ -259,31 +217,18 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ai-base:
-        condition: service_completed_successfully
 
-    volumes:
-      - .:/app
-
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8004/health'); assert 200 <= r.status < 300"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # --------------------------------------------------------------------------
-  # AI
-  # --------------------------------------------------------------------------
 
   ai_service:
-    image: ai_service
+    image: ai_service:latest
 
     build:
       context: .
       dockerfile: services/ai/Dockerfile
 
     container_name: ai_service
+
+    restart: unless-stopped
 
     env_file:
       - .env
@@ -298,25 +243,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ai-base:
-        condition: service_completed_successfully
 
-    volumes:
-      - .:/app
-
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8005/health'); assert 200 <= r.status < 300"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # --------------------------------------------------------------------------
-  # Worker
-  # --------------------------------------------------------------------------
 
   worker_service:
-    image: worker_service
+    image: worker_service:latest
 
     build:
       context: .
@@ -324,8 +254,10 @@ services:
 
     container_name: worker_service
 
+    restart: unless-stopped
+
     env_file:
-      - services/worker/.env
+      - .env
 
     ports:
       - "8006:8006"
@@ -337,75 +269,67 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ai-base:
-        condition: service_completed_successfully
 
-    volumes:
-      - .:/app
-  
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8006/health'); assert 200 <= r.status < 300"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
-  # --------------------------------------------------------------------------
-  # Celery Worker
-  # --------------------------------------------------------------------------
   celery_worker:
-    build:
-      context: .
-      dockerfile: services/worker/Dockerfile
+    image: worker_service:latest
+
+    command:
+      - celery
+      - -A
+      - services.worker.app.celery_app.celery_app
+      - worker
+      - --loglevel=info
+      - --without-mingle
+      - --without-gossip
+
     container_name: celery_worker
-    command: >
-      celery
-      -A services.worker.app.celery_app.celery_app
-      worker
-      --loglevel=info
-      --without-mingle
-      --without-gossip
+
+    restart: unless-stopped
+
     env_file:
       - .env
-    
-    ports:
-      - "9000:9000"
 
     depends_on:
       rabbitmq:
         condition: service_healthy
       redis:
         condition: service_healthy
-    restart: unless-stopped
-  
-  # --------------------------------------------------------------------------
-  # Celery Beat
-  # --------------------------------------------------------------------------
+      worker_service:
+        condition: service_started
+
+
   celery_beat:
-    build:
-      context: .
-      dockerfile: services/worker/Dockerfile
-    container_name: celery_beat 
-    command: >
-      celery
-      -A services.worker.app.celery_app.celery_app
-      beat
-      --loglevel=info
+    image: worker_service:latest
+
+    command:
+      - celery
+      - -A
+      - services.worker.app.celery_app.celery_app
+      - beat
+      - --loglevel=info
+
+    container_name: celery_beat
+
+    restart: unless-stopped
+
     env_file:
       - .env
+
     depends_on:
       rabbitmq:
         condition: service_healthy
       redis:
         condition: service_healthy
-    restart: unless-stopped
+      worker_service:
+        condition: service_started
 
-  # --------------------------------------------------------------------------
-  # Prometheus Worker
-  # --------------------------------------------------------------------------
+
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.5.0
+
     container_name: ai_prometheus
+
     restart: unless-stopped
 
     ports:
@@ -413,13 +337,16 @@ services:
 
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    
-    command: 
+
+    command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-    
+
     depends_on:
-      - gateway_service
-      - celery_worker
+      gateway_service:
+        condition: service_started
+      celery_worker:
+        condition: service_started
+
 
 volumes:
   postgres_data:
