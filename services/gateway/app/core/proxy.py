@@ -54,7 +54,7 @@ class GatewayProxy:
             key: value
             for key, value in response.headers.items()
             if key.lower() not in {
-                "content_length",
+                "content-length",
                 "transfer-encoding",
                 "connection",
                 "content-encoding",
