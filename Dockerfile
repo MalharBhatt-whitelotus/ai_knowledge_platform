@@ -2,21 +2,17 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# System dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        supervisor \
-        curl && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    curl \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
 
-# Python dependency files
-COPY pyproject.toml .
-COPY uv.lock .
+# Install all dependencies for the complete platform
+COPY requirements.txt .
 
-RUN pip install --no-cache-dir uv && \
-    uv sync --frozen
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Application
+# Application code
 COPY shared_lib ./shared_lib
 COPY services ./services
 
@@ -25,7 +21,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ENV PYTHONPATH=/app
 
-# Application ports
-EXPOSE 8000 8001 8002 8003 8004 8005 8006
+EXPOSE 8000
 
-CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
