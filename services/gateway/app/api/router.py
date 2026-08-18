@@ -23,6 +23,7 @@ api_router = APIRouter()
         "OPTIONS",
         "HEAD",
     ],
+    tags=["proxy"]
 )
 async def proxy(service: str, path: str, request: Request,):
 
