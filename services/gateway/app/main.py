@@ -16,16 +16,15 @@ rate_limiter =  RateLimiter(
     window_seconds=60,
 )
 
-gateway_proxy = GatewayProxy()
 
 async def startup(app: FastAPI):
     app.state.redis = redis_client
     app.state.rate_limiter = rate_limiter
-    app.state.gateway_proxy = gateway_proxy
+    app.state.gateway_proxy = GatewayProxy()
 
 
 async def shutdown(app: FastAPI):
-    await gateway_proxy.close()
+    await app.state.gateway_proxy.close()
     await redis_client.close()
 
 
