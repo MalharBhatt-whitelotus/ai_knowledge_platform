@@ -2,6 +2,13 @@ from fastapi import APIRouter, Request
 
 from services.gateway.app.config.config import settings
 
+SERVICE_URLS = {
+    "auth": settings.auth_service_url,
+    "file": settings.file_service_url,
+    "embedding": settings.embedding_service_url,
+    "search": settings.search_service_url,
+    "ai": settings.ai_service_url,
+}
 
 api_router = APIRouter()
 
@@ -18,13 +25,8 @@ api_router = APIRouter()
     ],
 )
 async def proxy(service: str, path: str, request: Request,):
-    service_urls = {
-        "auth": settings.ai_service_url,
-        "file": settings.file_service_url,
-        "ai": settings.ai_service_url,
-    }
 
-    base_url = service_urls.get(service)
+    base_url = SERVICE_URLS.get(service)
 
     if base_url is None:
         return {"detail": f"Unknown service: {service}"}
