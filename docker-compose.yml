@@ -127,8 +127,6 @@ services:
     env_file:
       - .env
 
-    ports:
-      - "8001:8001"
 
     depends_on:
       postgres:
@@ -153,8 +151,6 @@ services:
     env_file:
       - .env
     
-    ports:
-      - "8002:8002"
 
     depends_on:
       postgres:
@@ -181,8 +177,6 @@ services:
     env_file:
       - .env
 
-    ports:
-      - "8003:8003"
 
     depends_on:
       postgres:
@@ -207,8 +201,6 @@ services:
     env_file:
       - .env
 
-    ports:
-      - "8004:8004"
 
     depends_on:
       postgres:
@@ -233,8 +225,6 @@ services:
     env_file:
       - .env
 
-    ports:
-      - "8005:8005"
 
     depends_on:
       postgres:
@@ -259,8 +249,6 @@ services:
     env_file:
       - .env
 
-    ports:
-      - "8006:8006"
 
     depends_on:
       postgres:
