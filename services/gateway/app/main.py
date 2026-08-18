@@ -5,6 +5,7 @@ from shared_lib.core.rate_limiter import RateLimiter
 from shared_lib.cache.redis_client import RedisClient
 
 from services.gateway.app.api.router import api_router
+from services.gateway.app.core.proxy import GatewayProxy
 
 
 redis_client = RedisClient()
@@ -15,14 +16,16 @@ rate_limiter =  RateLimiter(
     window_seconds=60,
 )
 
+gateway_proxy = GatewayProxy()
 
 async def startup(app: FastAPI):
     app.state.redis = redis_client
     app.state.rate_limiter = rate_limiter
+    app.state.gateway_proxy = gateway_proxy
 
 
 async def shutdown(app: FastAPI):
-
+    await gateway_proxy.close()
     await redis_client.close()
 
 
